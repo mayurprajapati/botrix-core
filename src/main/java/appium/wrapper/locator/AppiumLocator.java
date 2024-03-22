@@ -1,6 +1,8 @@
 package appium.wrapper.locator;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.SearchContext;
+import org.openqa.selenium.WebElement;
 
 import io.appium.java_client.AppiumBy;
 import lombok.Getter;
@@ -15,6 +17,10 @@ public class AppiumLocator {
 		this.locatorType = type;
 		this.locatorName = locatorName;
 		this.locatorValue = locatorValue;
+	}
+
+	public WebElement findOne(SearchContext context) {
+		return context.findElement(get());
 	}
 
 	public By get() {
@@ -71,12 +77,76 @@ public class AppiumLocator {
 			return AppiumBy.tagName(locatorName);
 		}
 		default:
-			throw new IllegalArgumentException("Unexpected value: " + locatorType);
+			throw new IllegalArgumentException("Unexpected locator type: " + locatorType);
 		}
 	}
 
 	public static AppiumLocator byXpath(String locatorName, String locatorValue) {
 		return new AppiumLocator(LocatorType.XPATH, locatorName, locatorValue);
+	}
+
+	public static AppiumLocator byAccessibilityId(String locatorName, String locatorValue) {
+		return new AppiumLocator(LocatorType.ACCESSIBILITY_ID, locatorName, locatorValue);
+	}
+
+	public static AppiumLocator byAndroidDataMatcher(String locatorName, String locatorValue) {
+		return new AppiumLocator(LocatorType.ANDROID_DATA_MATCHER, locatorName, locatorValue);
+	}
+
+	public static AppiumLocator byAndroidUiAutomator(String locatorName, String locatorValue) {
+		return new AppiumLocator(LocatorType.ANDROID_UI_AUTOMATOR, locatorName, locatorValue);
+	}
+
+	public static AppiumLocator byAndroidViewMatcher(String locatorName, String locatorValue) {
+		return new AppiumLocator(LocatorType.ANDROID_VIEW_MATCHER, locatorName, locatorValue);
+	}
+
+	public static AppiumLocator byAndroidViewTag(String locatorName, String locatorValue) {
+		return new AppiumLocator(LocatorType.ANDROID_VIEW_TAG, locatorName, locatorValue);
+	}
+
+	public static AppiumLocator byClassName(String locatorName, String locatorValue) {
+		return new AppiumLocator(LocatorType.CLASS_NAME, locatorName, locatorValue);
+	}
+
+	public static AppiumLocator byId(String locatorName, String locatorValue) {
+		return new AppiumLocator(LocatorType.ID, locatorName, locatorValue);
+	}
+
+	public static AppiumLocator byName(String locatorName, String locatorValue) {
+		return new AppiumLocator(LocatorType.NAME, locatorName, locatorValue);
+	}
+
+	public static AppiumLocator byCustom(String locatorName, String locatorValue) {
+		return new AppiumLocator(LocatorType.CUSTOM, locatorName, locatorValue);
+	}
+
+	public static AppiumLocator byImage(String locatorName, String locatorValue) {
+		return new AppiumLocator(LocatorType.IMAGE, locatorName, locatorValue);
+	}
+
+	public static AppiumLocator byiOSClassChain(String locatorName, String locatorValue) {
+		return new AppiumLocator(LocatorType.IOS_CLASS_CHAIN, locatorName, locatorValue);
+	}
+
+	public static AppiumLocator byiOSNsPredicateString(String locatorName, String locatorValue) {
+		return new AppiumLocator(LocatorType.IOS_NSPREDICATE_STRING, locatorName, locatorValue);
+	}
+
+	public static AppiumLocator byLinkText(String locatorName, String locatorValue) {
+		return new AppiumLocator(LocatorType.LINK_TEXT, locatorName, locatorValue);
+	}
+
+	public static AppiumLocator byPartialLinkText(String locatorName, String locatorValue) {
+		return new AppiumLocator(LocatorType.PARTIAL_LINK_TEXT, locatorName, locatorValue);
+	}
+
+	public static AppiumLocator byTagName(String locatorName, String locatorValue) {
+		return new AppiumLocator(LocatorType.TAG_NAME, locatorName, locatorValue);
+	}
+
+	public static AppiumLocator byCssSelector(String locatorName, String locatorValue) {
+		return new AppiumLocator(LocatorType.CSS_SELECTOR, locatorName, locatorValue);
 	}
 
 	public static enum LocatorType {
