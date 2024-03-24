@@ -1,12 +1,13 @@
 package appium.wrapper.driver;
 
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 
-public class ChromeDriverWrapper<T extends ChromeDriver> extends BrowserDriverWrapper<RemoteWebDriver> {
+public class ChromeDriverWrapper extends AppiumDriverWrapper {
+	private ChromeOptions chromeOptions;
 
-	public ChromeDriverWrapper(RemoteWebDriver driver) {
-		super(driver);
+	public ChromeDriverWrapper(ChromeDriver driver, Process browserProcess, ChromeOptions options) {
+		super(driver, browserProcess);
+		this.chromeOptions = options;
 	}
-
 }

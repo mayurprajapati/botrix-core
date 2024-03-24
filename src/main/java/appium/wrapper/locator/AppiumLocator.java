@@ -5,9 +5,11 @@ import org.openqa.selenium.SearchContext;
 import org.openqa.selenium.WebElement;
 
 import io.appium.java_client.AppiumBy;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 @Getter
+@EqualsAndHashCode
 public class AppiumLocator {
 	private String locatorName;
 	private String locatorValue;
@@ -26,55 +28,55 @@ public class AppiumLocator {
 	public By get() {
 		switch (locatorType) {
 		case XPATH: {
-			return AppiumBy.xpath(locatorName);
+			return AppiumBy.xpath(locatorValue);
 		}
 		case ACCESSIBILITY_ID: {
-			return AppiumBy.accessibilityId(locatorName);
+			return AppiumBy.accessibilityId(locatorValue);
 		}
 		case ANDROID_DATA_MATCHER: {
-			return AppiumBy.androidDataMatcher(locatorName);
+			return AppiumBy.androidDataMatcher(locatorValue);
 		}
 		case ANDROID_UI_AUTOMATOR: {
-			return AppiumBy.androidUIAutomator(locatorName);
+			return AppiumBy.androidUIAutomator(locatorValue);
 		}
 		case ANDROID_VIEW_MATCHER: {
-			return AppiumBy.androidViewMatcher(locatorName);
+			return AppiumBy.androidViewMatcher(locatorValue);
 		}
 		case ANDROID_VIEW_TAG: {
-			return AppiumBy.androidViewTag(locatorName);
+			return AppiumBy.androidViewTag(locatorValue);
 		}
 		case CLASS_NAME: {
-			return AppiumBy.className(locatorName);
+			return AppiumBy.className(locatorValue);
 		}
 		case CSS_SELECTOR: {
-			return AppiumBy.cssSelector(locatorName);
+			return AppiumBy.cssSelector(locatorValue);
 		}
 		case CUSTOM: {
-			return AppiumBy.custom(locatorName);
+			return AppiumBy.custom(locatorValue);
 		}
 		case ID: {
-			return AppiumBy.id(locatorName);
+			return AppiumBy.id(locatorValue);
 		}
 		case IMAGE: {
-			return AppiumBy.image(locatorName);
+			return AppiumBy.image(locatorValue);
 		}
 		case IOS_CLASS_CHAIN: {
-			return AppiumBy.iOSClassChain(locatorName);
+			return AppiumBy.iOSClassChain(locatorValue);
 		}
 		case IOS_NSPREDICATE_STRING: {
-			return AppiumBy.iOSNsPredicateString(locatorName);
+			return AppiumBy.iOSNsPredicateString(locatorValue);
 		}
 		case LINK_TEXT: {
-			return AppiumBy.linkText(locatorName);
+			return AppiumBy.linkText(locatorValue);
 		}
 		case NAME: {
-			return AppiumBy.name(locatorName);
+			return AppiumBy.name(locatorValue);
 		}
 		case PARTIAL_LINK_TEXT: {
-			return AppiumBy.partialLinkText(locatorName);
+			return AppiumBy.partialLinkText(locatorValue);
 		}
 		case TAG_NAME: {
-			return AppiumBy.tagName(locatorName);
+			return AppiumBy.tagName(locatorValue);
 		}
 		default:
 			throw new IllegalArgumentException("Unexpected locator type: " + locatorType);
