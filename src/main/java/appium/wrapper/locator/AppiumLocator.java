@@ -21,10 +21,6 @@ public class AppiumLocator {
 		this.locatorValue = locatorValue;
 	}
 
-	public WebElement findOne(SearchContext context) {
-		return context.findElement(get());
-	}
-
 	public By get() {
 		switch (locatorType) {
 		case XPATH: {
@@ -77,6 +73,19 @@ public class AppiumLocator {
 		}
 		case TAG_NAME: {
 			return AppiumBy.tagName(locatorValue);
+		}
+		// custom selectors
+		case EXACT_TEXT: {
+			return AppiumBy.xpath("//*[.=\"%s\"]".formatted(locatorValue));
+		}
+		case EXACT_TEXT_IGNORE_CASE: {
+			return AppiumBy.xpath("//*[lower-case(.)=\"%s\"]".formatted(locatorValue.toLowerCase()));
+		}
+		case CONTAINS_TEXT: {
+			return AppiumBy.xpath("//*[contains(., \"%s\")]".formatted(locatorValue));
+		}
+		case CONTAINS_TEXT_IGNORE_CASE: {
+			return AppiumBy.xpath("//*[contains(lower-case(.),\"%s\")]".formatted(locatorValue.toLowerCase()));
 		}
 		default:
 			throw new IllegalArgumentException("Unexpected locator type: " + locatorType);
@@ -151,6 +160,22 @@ public class AppiumLocator {
 		return new AppiumLocator(LocatorType.CSS_SELECTOR, locatorName, locatorValue);
 	}
 
+	public static AppiumLocator byExactText(String locatorName, String locatorValue) {
+		return new AppiumLocator(LocatorType.EXACT_TEXT, locatorName, locatorValue);
+	}
+
+	public static AppiumLocator byExactTextIgnoreCase(String locatorName, String locatorValue) {
+		return new AppiumLocator(LocatorType.EXACT_TEXT_IGNORE_CASE, locatorName, locatorValue);
+	}
+
+	public static AppiumLocator byContainsText(String locatorName, String locatorValue) {
+		return new AppiumLocator(LocatorType.CONTAINS_TEXT, locatorName, locatorValue);
+	}
+
+	public static AppiumLocator byContainsTextIgnoreCase(String locatorName, String locatorValue) {
+		return new AppiumLocator(LocatorType.CONTAINS_TEXT_IGNORE_CASE, locatorName, locatorValue);
+	}
+
 	public static enum LocatorType {
 		// @formatter:off
 		XPATH,
@@ -170,6 +195,11 @@ public class AppiumLocator {
 		PARTIAL_LINK_TEXT,
 		TAG_NAME,
 		CSS_SELECTOR,
+		// custom selectors
+		EXACT_TEXT,
+		EXACT_TEXT_IGNORE_CASE,
+		CONTAINS_TEXT,
+		CONTAINS_TEXT_IGNORE_CASE
 		;
 		// @formatter:on
 	}

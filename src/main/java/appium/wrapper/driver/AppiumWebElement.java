@@ -20,15 +20,16 @@ public class AppiumWebElement {
 	private AppiumDriverWrapper driver;
 	private static final Logger LOGGER = org.slf4j.LoggerFactory.getLogger(AppiumWebElement.class);
 
-	AppiumWebElement(WebElement element, AppiumLocator locator, AppiumWebElement parent, AppiumDriverWrapper driver) {
+	public AppiumWebElement(WebElement element, AppiumLocator locator, AppiumWebElement parent,
+			AppiumDriverWrapper driver) {
 		this.element = element;
 		this.locator = locator;
 		this.parent = parent;
 		this.driver = driver;
 	}
 
-	AppiumWebElement(WebElement element, AppiumLocator locator, AppiumWebElement parent, AppiumDriverWrapper driver,
-			int nthIndex) {
+	public AppiumWebElement(WebElement element, AppiumLocator locator, AppiumWebElement parent,
+			AppiumDriverWrapper driver, int nthIndex) {
 		this(element, locator, parent, driver);
 		this.nthIndex = nthIndex;
 	}
@@ -49,6 +50,29 @@ public class AppiumWebElement {
 	public void click() {
 		element.click();
 		LOGGER.info("Clicked on {}", locator);
+	}
+
+	public void scrollToEnd() {
+		long maxScrollHeight = getScrollHeight();
+		driver.executeScript("arguments[0].scrollBy(0, %s)".formatted(maxScrollHeight), element);
+	}
+
+	public long getScrollHeight() {
+		return driver.executeScript("arguments[0].scrollHeight", element);
+	}
+
+	public boolean canBeScrolled() {
+		return driver.executeScript(
+				"return Math.abs(arguments[0].scrollTop - (arguments[0].scrollHeight - arguments[0].offsetHeight)) <= 3",
+				element);
+	}
+
+	public void clickJs() {
+		driver.executeScript("arguments[0].click()", element);
+	}
+
+	public void scrollIntoView() {
+		driver.executeScript("arguments[0].scrollIntoView()", element);
 	}
 
 	public void sendKeys(String text) {
@@ -100,5 +124,9 @@ public class AppiumWebElement {
 
 	public String getCssValue(String propertyName) {
 		return element.getCssValue(propertyName);
+	}
+
+	public String href() {
+		return element.getAttribute("href");
 	}
 }
