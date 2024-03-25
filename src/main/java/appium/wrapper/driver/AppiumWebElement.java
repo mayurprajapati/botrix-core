@@ -1,8 +1,5 @@
 package appium.wrapper.driver;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.Rectangle;
 import org.openqa.selenium.WebElement;
@@ -35,16 +32,11 @@ public class AppiumWebElement {
 	}
 
 	public AppiumWebElement findOne(AppiumLocator loc) {
-		return new AppiumWebElement(element.findElement(loc.get()), loc, this, driver);
+		return AppiumSearchContextHelper.findOne(loc, parent, driver);
 	}
 
-	public List<AppiumWebElement> findAll(AppiumLocator loc) {
-		List<AppiumWebElement> elements = new ArrayList<>();
-		int index = 0;
-		for (WebElement el : element.findElements(loc.get())) {
-			elements.add(new AppiumWebElement(el, loc, this, driver, index));
-		}
-		return elements;
+	public AppiumWebElements findAll(AppiumLocator loc) {
+		return AppiumSearchContextHelper.findAll(loc, parent, driver);
 	}
 
 	public void click() {
@@ -58,7 +50,7 @@ public class AppiumWebElement {
 	}
 
 	public long getScrollHeight() {
-		return driver.executeScript("arguments[0].scrollHeight", element);
+		return driver.executeScript("return arguments[0].scrollHeight", element);
 	}
 
 	public boolean canBeScrolled() {
