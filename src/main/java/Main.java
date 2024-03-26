@@ -8,7 +8,7 @@ public class Main {
 		var app = BrowserDriverBuilder.chrome().wdmDefault().build();
 		app.get("https://google.com");
 		var loc = AppiumLocator.byXpath("Search Box", "//textarea[@title=\"Search\"]");
-		app.click(loc);
-		app.sendKeys(loc, "Java" + Keys.ENTER);
+		app.findOne(loc).click();
+		app.findOne(loc).sendKeys("Java" + Keys.ENTER);
 	}
 }
