@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-import temp_pb2 as temp__pb2
+import python_bridge_pb2 as python__bridge__pb2
 
 GRPC_GENERATED_VERSION = '1.63.0'
 GRPC_VERSION = grpc.__version__
@@ -20,7 +20,7 @@ except ImportError:
 if _version_not_supported:
     warnings.warn(
         f'The grpc package installed is at version {GRPC_VERSION},'
-        + f' but the generated code in temp_pb2_grpc.py depends on'
+        + f' but the generated code in python_bridge_pb2_grpc.py depends on'
         + f' grpcio>={GRPC_GENERATED_VERSION}.'
         + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
         + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
@@ -30,7 +30,7 @@ if _version_not_supported:
     )
 
 
-class CalculatorServiceStub(object):
+class PythonBridgeStub(object):
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -39,42 +39,42 @@ class CalculatorServiceStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.sum = channel.unary_unary(
-                '/CalculatorService/sum',
-                request_serializer=temp__pb2.SumRequest.SerializeToString,
-                response_deserializer=temp__pb2.SumResponse.FromString,
+        self.resolveRecaptcha = channel.unary_unary(
+                '/PythonBridge/resolveRecaptcha',
+                request_serializer=python__bridge__pb2.DriverDebugAddressRequest.SerializeToString,
+                response_deserializer=python__bridge__pb2.CommonResponse.FromString,
                 _registered_method=True)
 
 
-class CalculatorServiceServicer(object):
+class PythonBridgeServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def sum(self, request, context):
+    def resolveRecaptcha(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
 
-def add_CalculatorServiceServicer_to_server(servicer, server):
+def add_PythonBridgeServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'sum': grpc.unary_unary_rpc_method_handler(
-                    servicer.sum,
-                    request_deserializer=temp__pb2.SumRequest.FromString,
-                    response_serializer=temp__pb2.SumResponse.SerializeToString,
+            'resolveRecaptcha': grpc.unary_unary_rpc_method_handler(
+                    servicer.resolveRecaptcha,
+                    request_deserializer=python__bridge__pb2.DriverDebugAddressRequest.FromString,
+                    response_serializer=python__bridge__pb2.CommonResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'CalculatorService', rpc_method_handlers)
+            'PythonBridge', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
  # This class is part of an EXPERIMENTAL API.
-class CalculatorService(object):
+class PythonBridge(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def sum(request,
+    def resolveRecaptcha(request,
             target,
             options=(),
             channel_credentials=None,
@@ -87,9 +87,9 @@ class CalculatorService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/CalculatorService/sum',
-            temp__pb2.SumRequest.SerializeToString,
-            temp__pb2.SumResponse.FromString,
+            '/PythonBridge/resolveRecaptcha',
+            python__bridge__pb2.DriverDebugAddressRequest.SerializeToString,
+            python__bridge__pb2.CommonResponse.FromString,
             options,
             channel_credentials,
             insecure,

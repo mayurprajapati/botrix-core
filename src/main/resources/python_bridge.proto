@@ -1,0 +1,30 @@
+syntax = "proto3";
+option java_multiple_files =  true;
+
+option java_package="grpc.bridge.python";
+
+message SumRequest {
+  int32 first_number=1;
+  int32  second_number=2;
+}
+
+message SumResponse {
+  int32 result=1;
+}
+
+//service CalculatorService {
+//	rpc sum(SumRequest) returns(SumResponse);
+//}
+
+message DriverDebugAddressRequest {
+	string ip = 1;
+	int32 port = 2;
+}
+
+message CommonResponse {
+	bool success = 1;
+}
+
+service PythonBridge {
+	rpc resolveRecaptcha(DriverDebugAddressRequest) returns (CommonResponse);
+}

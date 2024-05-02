@@ -1,4 +1,4 @@
-package com.proto.calculator;
+package grpc.bridge.python;
 
 import static io.grpc.stub.ClientCalls.asyncUnaryCall;
 import static io.grpc.stub.ClientCalls.asyncServerStreamingCall;
@@ -19,165 +19,165 @@ import static io.grpc.stub.ServerCalls.asyncUnimplementedStreamingCall;
  */
 @javax.annotation.Generated(
     value = "by gRPC proto compiler (version 1.4.0)",
-    comments = "Source: temp.proto")
-public final class CalculatorServiceGrpc {
+    comments = "Source: python_bridge.proto")
+public final class PythonBridgeGrpc {
 
-  private CalculatorServiceGrpc() {}
+  private PythonBridgeGrpc() {}
 
-  public static final String SERVICE_NAME = "CalculatorService";
+  public static final String SERVICE_NAME = "PythonBridge";
 
   // Static method descriptors that strictly reflect the proto.
   @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
-  public static final io.grpc.MethodDescriptor<com.proto.calculator.SumRequest,
-      com.proto.calculator.SumResponse> METHOD_SUM =
-      io.grpc.MethodDescriptor.<com.proto.calculator.SumRequest, com.proto.calculator.SumResponse>newBuilder()
+  public static final io.grpc.MethodDescriptor<grpc.bridge.python.DriverDebugAddressRequest,
+      grpc.bridge.python.CommonResponse> METHOD_RESOLVE_RECAPTCHA =
+      io.grpc.MethodDescriptor.<grpc.bridge.python.DriverDebugAddressRequest, grpc.bridge.python.CommonResponse>newBuilder()
           .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
           .setFullMethodName(generateFullMethodName(
-              "CalculatorService", "sum"))
+              "PythonBridge", "resolveRecaptcha"))
           .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-              com.proto.calculator.SumRequest.getDefaultInstance()))
+              grpc.bridge.python.DriverDebugAddressRequest.getDefaultInstance()))
           .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-              com.proto.calculator.SumResponse.getDefaultInstance()))
+              grpc.bridge.python.CommonResponse.getDefaultInstance()))
           .build();
 
   /**
    * Creates a new async stub that supports all call types for the service
    */
-  public static CalculatorServiceStub newStub(io.grpc.Channel channel) {
-    return new CalculatorServiceStub(channel);
+  public static PythonBridgeStub newStub(io.grpc.Channel channel) {
+    return new PythonBridgeStub(channel);
   }
 
   /**
    * Creates a new blocking-style stub that supports unary and streaming output calls on the service
    */
-  public static CalculatorServiceBlockingStub newBlockingStub(
+  public static PythonBridgeBlockingStub newBlockingStub(
       io.grpc.Channel channel) {
-    return new CalculatorServiceBlockingStub(channel);
+    return new PythonBridgeBlockingStub(channel);
   }
 
   /**
    * Creates a new ListenableFuture-style stub that supports unary calls on the service
    */
-  public static CalculatorServiceFutureStub newFutureStub(
+  public static PythonBridgeFutureStub newFutureStub(
       io.grpc.Channel channel) {
-    return new CalculatorServiceFutureStub(channel);
+    return new PythonBridgeFutureStub(channel);
   }
 
   /**
    */
-  public static abstract class CalculatorServiceImplBase implements io.grpc.BindableService {
+  public static abstract class PythonBridgeImplBase implements io.grpc.BindableService {
 
     /**
      */
-    public void sum(com.proto.calculator.SumRequest request,
-        io.grpc.stub.StreamObserver<com.proto.calculator.SumResponse> responseObserver) {
-      asyncUnimplementedUnaryCall(METHOD_SUM, responseObserver);
+    public void resolveRecaptcha(grpc.bridge.python.DriverDebugAddressRequest request,
+        io.grpc.stub.StreamObserver<grpc.bridge.python.CommonResponse> responseObserver) {
+      asyncUnimplementedUnaryCall(METHOD_RESOLVE_RECAPTCHA, responseObserver);
     }
 
     @java.lang.Override public final io.grpc.ServerServiceDefinition bindService() {
       return io.grpc.ServerServiceDefinition.builder(getServiceDescriptor())
           .addMethod(
-            METHOD_SUM,
+            METHOD_RESOLVE_RECAPTCHA,
             asyncUnaryCall(
               new MethodHandlers<
-                com.proto.calculator.SumRequest,
-                com.proto.calculator.SumResponse>(
-                  this, METHODID_SUM)))
+                grpc.bridge.python.DriverDebugAddressRequest,
+                grpc.bridge.python.CommonResponse>(
+                  this, METHODID_RESOLVE_RECAPTCHA)))
           .build();
     }
   }
 
   /**
    */
-  public static final class CalculatorServiceStub extends io.grpc.stub.AbstractStub<CalculatorServiceStub> {
-    private CalculatorServiceStub(io.grpc.Channel channel) {
+  public static final class PythonBridgeStub extends io.grpc.stub.AbstractStub<PythonBridgeStub> {
+    private PythonBridgeStub(io.grpc.Channel channel) {
       super(channel);
     }
 
-    private CalculatorServiceStub(io.grpc.Channel channel,
+    private PythonBridgeStub(io.grpc.Channel channel,
         io.grpc.CallOptions callOptions) {
       super(channel, callOptions);
     }
 
     @java.lang.Override
-    protected CalculatorServiceStub build(io.grpc.Channel channel,
+    protected PythonBridgeStub build(io.grpc.Channel channel,
         io.grpc.CallOptions callOptions) {
-      return new CalculatorServiceStub(channel, callOptions);
+      return new PythonBridgeStub(channel, callOptions);
     }
 
     /**
      */
-    public void sum(com.proto.calculator.SumRequest request,
-        io.grpc.stub.StreamObserver<com.proto.calculator.SumResponse> responseObserver) {
+    public void resolveRecaptcha(grpc.bridge.python.DriverDebugAddressRequest request,
+        io.grpc.stub.StreamObserver<grpc.bridge.python.CommonResponse> responseObserver) {
       asyncUnaryCall(
-          getChannel().newCall(METHOD_SUM, getCallOptions()), request, responseObserver);
+          getChannel().newCall(METHOD_RESOLVE_RECAPTCHA, getCallOptions()), request, responseObserver);
     }
   }
 
   /**
    */
-  public static final class CalculatorServiceBlockingStub extends io.grpc.stub.AbstractStub<CalculatorServiceBlockingStub> {
-    private CalculatorServiceBlockingStub(io.grpc.Channel channel) {
+  public static final class PythonBridgeBlockingStub extends io.grpc.stub.AbstractStub<PythonBridgeBlockingStub> {
+    private PythonBridgeBlockingStub(io.grpc.Channel channel) {
       super(channel);
     }
 
-    private CalculatorServiceBlockingStub(io.grpc.Channel channel,
+    private PythonBridgeBlockingStub(io.grpc.Channel channel,
         io.grpc.CallOptions callOptions) {
       super(channel, callOptions);
     }
 
     @java.lang.Override
-    protected CalculatorServiceBlockingStub build(io.grpc.Channel channel,
+    protected PythonBridgeBlockingStub build(io.grpc.Channel channel,
         io.grpc.CallOptions callOptions) {
-      return new CalculatorServiceBlockingStub(channel, callOptions);
+      return new PythonBridgeBlockingStub(channel, callOptions);
     }
 
     /**
      */
-    public com.proto.calculator.SumResponse sum(com.proto.calculator.SumRequest request) {
+    public grpc.bridge.python.CommonResponse resolveRecaptcha(grpc.bridge.python.DriverDebugAddressRequest request) {
       return blockingUnaryCall(
-          getChannel(), METHOD_SUM, getCallOptions(), request);
+          getChannel(), METHOD_RESOLVE_RECAPTCHA, getCallOptions(), request);
     }
   }
 
   /**
    */
-  public static final class CalculatorServiceFutureStub extends io.grpc.stub.AbstractStub<CalculatorServiceFutureStub> {
-    private CalculatorServiceFutureStub(io.grpc.Channel channel) {
+  public static final class PythonBridgeFutureStub extends io.grpc.stub.AbstractStub<PythonBridgeFutureStub> {
+    private PythonBridgeFutureStub(io.grpc.Channel channel) {
       super(channel);
     }
 
-    private CalculatorServiceFutureStub(io.grpc.Channel channel,
+    private PythonBridgeFutureStub(io.grpc.Channel channel,
         io.grpc.CallOptions callOptions) {
       super(channel, callOptions);
     }
 
     @java.lang.Override
-    protected CalculatorServiceFutureStub build(io.grpc.Channel channel,
+    protected PythonBridgeFutureStub build(io.grpc.Channel channel,
         io.grpc.CallOptions callOptions) {
-      return new CalculatorServiceFutureStub(channel, callOptions);
+      return new PythonBridgeFutureStub(channel, callOptions);
     }
 
     /**
      */
-    public com.google.common.util.concurrent.ListenableFuture<com.proto.calculator.SumResponse> sum(
-        com.proto.calculator.SumRequest request) {
+    public com.google.common.util.concurrent.ListenableFuture<grpc.bridge.python.CommonResponse> resolveRecaptcha(
+        grpc.bridge.python.DriverDebugAddressRequest request) {
       return futureUnaryCall(
-          getChannel().newCall(METHOD_SUM, getCallOptions()), request);
+          getChannel().newCall(METHOD_RESOLVE_RECAPTCHA, getCallOptions()), request);
     }
   }
 
-  private static final int METHODID_SUM = 0;
+  private static final int METHODID_RESOLVE_RECAPTCHA = 0;
 
   private static final class MethodHandlers<Req, Resp> implements
       io.grpc.stub.ServerCalls.UnaryMethod<Req, Resp>,
       io.grpc.stub.ServerCalls.ServerStreamingMethod<Req, Resp>,
       io.grpc.stub.ServerCalls.ClientStreamingMethod<Req, Resp>,
       io.grpc.stub.ServerCalls.BidiStreamingMethod<Req, Resp> {
-    private final CalculatorServiceImplBase serviceImpl;
+    private final PythonBridgeImplBase serviceImpl;
     private final int methodId;
 
-    MethodHandlers(CalculatorServiceImplBase serviceImpl, int methodId) {
+    MethodHandlers(PythonBridgeImplBase serviceImpl, int methodId) {
       this.serviceImpl = serviceImpl;
       this.methodId = methodId;
     }
@@ -186,9 +186,9 @@ public final class CalculatorServiceGrpc {
     @java.lang.SuppressWarnings("unchecked")
     public void invoke(Req request, io.grpc.stub.StreamObserver<Resp> responseObserver) {
       switch (methodId) {
-        case METHODID_SUM:
-          serviceImpl.sum((com.proto.calculator.SumRequest) request,
-              (io.grpc.stub.StreamObserver<com.proto.calculator.SumResponse>) responseObserver);
+        case METHODID_RESOLVE_RECAPTCHA:
+          serviceImpl.resolveRecaptcha((grpc.bridge.python.DriverDebugAddressRequest) request,
+              (io.grpc.stub.StreamObserver<grpc.bridge.python.CommonResponse>) responseObserver);
           break;
         default:
           throw new AssertionError();
@@ -206,10 +206,10 @@ public final class CalculatorServiceGrpc {
     }
   }
 
-  private static final class CalculatorServiceDescriptorSupplier implements io.grpc.protobuf.ProtoFileDescriptorSupplier {
+  private static final class PythonBridgeDescriptorSupplier implements io.grpc.protobuf.ProtoFileDescriptorSupplier {
     @java.lang.Override
     public com.google.protobuf.Descriptors.FileDescriptor getFileDescriptor() {
-      return com.proto.calculator.Temp.getDescriptor();
+      return grpc.bridge.python.PythonBridgeOuterClass.getDescriptor();
     }
   }
 
@@ -218,12 +218,12 @@ public final class CalculatorServiceGrpc {
   public static io.grpc.ServiceDescriptor getServiceDescriptor() {
     io.grpc.ServiceDescriptor result = serviceDescriptor;
     if (result == null) {
-      synchronized (CalculatorServiceGrpc.class) {
+      synchronized (PythonBridgeGrpc.class) {
         result = serviceDescriptor;
         if (result == null) {
           serviceDescriptor = result = io.grpc.ServiceDescriptor.newBuilder(SERVICE_NAME)
-              .setSchemaDescriptor(new CalculatorServiceDescriptorSupplier())
-              .addMethod(METHOD_SUM)
+              .setSchemaDescriptor(new PythonBridgeDescriptorSupplier())
+              .addMethod(METHOD_RESOLVE_RECAPTCHA)
               .build();
         }
       }
