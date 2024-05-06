@@ -14,6 +14,7 @@ import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.devtools.Connection;
 import org.openqa.selenium.devtools.HasDevTools;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.support.events.EventFiringDecorator;
 
 import appium.wrapper.locator.AppiumLocator;
 import grpc.bridge.python.PythonBridgeClient;
@@ -23,7 +24,7 @@ public class AppiumDriverWrapper {
 	private Process applicationProcess;
 
 	public AppiumDriverWrapper(RemoteWebDriver driver, Process applicationProcess) {
-		this.driver = driver;
+		this.driver = new EventFiringDecorator<RemoteWebDriver>(new AppiumWebDriverListener()).decorate(driver);
 		this.applicationProcess = applicationProcess;
 	}
 
