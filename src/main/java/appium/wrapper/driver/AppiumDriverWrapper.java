@@ -24,7 +24,8 @@ public class AppiumDriverWrapper {
 	private Process applicationProcess;
 
 	public AppiumDriverWrapper(RemoteWebDriver driver, Process applicationProcess) {
-		this.driver = new EventFiringDecorator<RemoteWebDriver>(new AppiumWebDriverListener()).decorate(driver);
+//		this.driver = new EventFiringDecorator<RemoteWebDriver>(new AppiumWebDriverListener()).decorate(driver);
+		this.driver = driver;
 		this.applicationProcess = applicationProcess;
 	}
 
