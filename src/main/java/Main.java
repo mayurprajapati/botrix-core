@@ -11,6 +11,7 @@ public class Main {
 		var loc = AppiumLocator.byXpath("Search Box", "//textarea[@title=\"Search\"]");
 		app.findOne(loc).click();
 		app.findOne(loc).sendKeys("Java" + Keys.ENTER);
+		app.quit();
 	}
 
 	// test gRPC

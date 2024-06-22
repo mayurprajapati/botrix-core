@@ -104,8 +104,12 @@ public class ChromeDriverBuilder {
 		if (StringUtils.isNotBlank(driverBuilderOptions.getUserDataDir())) {
 			String udd = Paths.get(System.getProperty("user.dir"), driverBuilderOptions.getUserDataDir()).toString();
 			options.addArguments("--user-data-dir=" + udd);
+			driverBuilderOptions.setKeepUserDataDir(true);
 		} else {
-			options.addArguments("--user-data-dir=" + Files.createTempDirectory("chrome"));
+			var temp = Files.createTempDirectory("chrome").toString();
+			options.addArguments("--user-data-dir=" + temp);
+			driverBuilderOptions.setKeepUserDataDir(false);
+			driverBuilderOptions.setUserDataDir(temp);
 		}
 
 		if (!driverBuilderOptions.getTranslateTheseLanguagesToDefault().isEmpty()) {
@@ -121,11 +125,20 @@ public class ChromeDriverBuilder {
 
 		options.addArguments("--no-default-browser-check");
 		options.addArguments("--no-first-run");
-		options.addArguments("--no-sandbox");
+
+		if (driverBuilderOptions.isNoSandbox()) {
+			options.addArguments("--no-sandbox", "--test-type");
+		}
+
+		if (driverBuilderOptions.isSuppressWelcome()) {
+			options.addArguments("--no-default-browser-check", "--no-first-run");
+		}
+
 		options.setExperimentalOption("prefs", experimentalPrefs);
 		options.setCapability(CapabilityType.ACCEPT_INSECURE_CERTS, true);
 		options.setPageLoadStrategy(driverBuilderOptions.getPageLoadStrategy());
 		options.addArguments("--disable-blink-features=AutomationControlled");
+		options.setExperimentalOption("useAutomationExtension", false);
 
 		if (StringUtils.isBlank(driverBuilderOptions.getBrowserExecutablePath())) {
 			driverBuilderOptions
@@ -133,10 +146,11 @@ public class ChromeDriverBuilder {
 		}
 
 		Process process = createBrowserProcess(options, true, driverBuilderOptions);
+
 		ChromeOptions newOptions = new ChromeOptions();
 		newOptions.setExperimentalOption("debuggerAddress",
 				driverBuilderOptions.getDebugHost() + ":" + String.valueOf(driverBuilderOptions.getDebugPort()));
-		return new ChromeDriverWrapper(new ChromeDriver(newOptions), process, options, this);
+		return new ChromeDriverWrapper(new ChromeDriver(newOptions), process, driverBuilderOptions);
 	}
 
 	@SuppressWarnings("unchecked")

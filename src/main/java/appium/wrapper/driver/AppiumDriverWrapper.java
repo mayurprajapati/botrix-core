@@ -27,6 +27,10 @@ public class AppiumDriverWrapper {
 //		this.driver = new EventFiringDecorator<RemoteWebDriver>(new AppiumWebDriverListener()).decorate(driver);
 		this.driver = driver;
 		this.applicationProcess = applicationProcess;
+
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+			quit();
+		}));
 	}
 
 	public AppiumWebElement findOne(AppiumLocator loc) {
@@ -54,11 +58,6 @@ public class AppiumDriverWrapper {
 		}
 	}
 
-	public void resolveRecaptcha() {
-		URI url = getDevtoolsUri();
-		PythonBridgeClient.resolveRecaptcha(url.getHost(), url.getPort());
-	}
-
 	public URI getDevtoolsUri() {
 		try {
 			Field connectionField = FieldUtils.getField(org.openqa.selenium.devtools.DevTools.class, "connection",
@@ -72,20 +71,8 @@ public class AppiumDriverWrapper {
 		}
 	}
 
-	public void get(String url) {
-		driver.get(url);
-	}
-
 	public Document jsoup() {
 		return Jsoup.parse(driver.getPageSource());
-	}
-
-	public Set<Cookie> getCookies() {
-		return driver.manage().getCookies();
-	}
-
-	public boolean isRecaptchaAvailable() {
-		return isPresent(AppiumLocator.byXpath("reCAPTCHA", "//iframe[@title=\"reCAPTCHA\"]"));
 	}
 
 	public void quit() {

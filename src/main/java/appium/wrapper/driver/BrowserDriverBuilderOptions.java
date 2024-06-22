@@ -46,4 +46,6 @@ public class BrowserDriverBuilderOptions extends DriverBuilderOptions {
 	private List<String> translateTheseLanguagesToDefault = List.of("pl");
 
 	private String browserExecutablePath = "";
+
+	private boolean keepUserDataDir = false;
 }
