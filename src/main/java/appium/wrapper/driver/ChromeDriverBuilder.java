@@ -3,6 +3,7 @@ package appium.wrapper.driver;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,68 +14,24 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
-import org.openqa.selenium.Dimension;
-import org.openqa.selenium.PageLoadStrategy;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.CapabilityType;
 
-import appium.wrapper.utils.NetUtils;
 import io.github.bonigarcia.wdm.WebDriverManager;
-import lombok.Setter;
-import lombok.experimental.Accessors;
+import lombok.SneakyThrows;
 
-@Accessors(fluent = true)
 public class ChromeDriverBuilder {
-	@Setter
-	private String debugHost = "127.0.0.1";
-
-	@Setter
-	private int debugPort = NetUtils.findFreePort();
-
-	@Setter
-	private boolean isHeadless = false;
-
-	@Setter
-	private boolean isIncognito = false;
-
-	@Setter
-	private boolean startMaximized = true;
-
-	@Setter
-	private boolean enableAutomaticDownloads = true;
-
-	@Setter
-	private String defaultDownloadLocation = "";
-
-	@Setter
-	private boolean disableGeolocation = false;
-
-	@Setter
-	private String defaultLanguage = "en";
-
-	@Setter
-	private Dimension windowSize = null;
-
-	@Setter
-	private PageLoadStrategy pageLoadStrategy = PageLoadStrategy.NORMAL;
-
-	@Setter
-	private String userDataDir = "";
-
-	// https://deviceatlas.com/blog/list-of-user-agent-strings#desktop
-	@Setter
-	private String userAgent = "";
-
-	@Setter
-	private List<String> translateTheseLanguagesToDefault = List.of("pl");
-
-	@Setter
-	private String browserExecutablePath = "";
+	private ChromeDriverBuilderOptions driverBuilderOptions = new ChromeDriverBuilderOptions();
 
 	public ChromeDriverBuilder wdmChrome(Consumer<WebDriverManager> setup) {
 		var wdm = WebDriverManager.chromedriver();
 		setup.accept(wdm);
+		return this;
+	}
+
+	public ChromeDriverBuilder withOptions(ChromeDriverBuilderOptions options) {
+		this.driverBuilderOptions = options;
 		return this;
 	}
 
@@ -85,26 +42,27 @@ public class ChromeDriverBuilder {
 		return this;
 	}
 
+	@SneakyThrows
 	public ChromeDriverWrapper build() {
 		ChromeOptions options = new ChromeOptions();
 		Map<String, Object> experimentalPrefs = new HashMap<>();
 
-		options.addArguments("--remote-debugging-host=" + debugHost);
-		options.addArguments("--remote-debugging-port=" + String.valueOf(debugPort));
+		options.addArguments("--remote-debugging-host=" + driverBuilderOptions.getDebugHost());
+		options.addArguments("--remote-debugging-port=" + String.valueOf(driverBuilderOptions.getDebugPort()));
 		options.addArguments("--disable-infobars");
 		options.addArguments("--safebrowsing-disable-download-protection");
 		options.addArguments("--safebrowsing-disable-extension-blacklist");
 		options.setExperimentalOption("excludeSwitches", Collections.singletonList("enable-automation"));
 
-		if (isHeadless) {
+		if (driverBuilderOptions.isHeadless()) {
 			options.addArguments("headless").addArguments("disable-gpu");
 		}
 
-		if (isIncognito) {
+		if (driverBuilderOptions.isIncognito()) {
 			options.addArguments("--incognito");
 		}
 
-		if (enableAutomaticDownloads) {
+		if (driverBuilderOptions.isEnableAutomaticDownloads()) {
 			experimentalPrefs.put("profile.default_content_settings.popups", 0);
 			experimentalPrefs.put("profile.default_content_setting_values.automatic_downloads", 1);
 			experimentalPrefs.put("download.prompt_for_download", false);
@@ -117,41 +75,48 @@ public class ChromeDriverBuilder {
 					"{\"recentDestinations\":{\"id\":\"Save as PDF\",\"origin\":\"local\",\"account\":\"\"},\"selectedDestinationId\":\"Save as PDF\",\"version\":2}");
 		}
 
-		if (windowSize != null) {
-			options.addArguments("--window-size=%s,%s".formatted(windowSize.width, windowSize.height));
+		if (driverBuilderOptions.getWindowSize() != null) {
+			options.addArguments("--window-size=%s,%s".formatted(driverBuilderOptions.getWindowSize().width,
+					driverBuilderOptions.getWindowSize().height));
 		}
 
-		if (startMaximized) {
+		if (driverBuilderOptions.isStartMaximized()) {
 			options.addArguments("--start-maximized");
 		}
 
-		if (StringUtils.isNotBlank(defaultDownloadLocation)) {
-			experimentalPrefs.put("download.default_directory", defaultDownloadLocation);
-			experimentalPrefs.put("savefile.default_directory", defaultDownloadLocation);
+		if (StringUtils.isNotBlank(driverBuilderOptions.getDefaultDownloadLocation())) {
+			experimentalPrefs.put("download.default_directory", driverBuilderOptions.getDefaultDownloadLocation());
+			experimentalPrefs.put("savefile.default_directory", driverBuilderOptions.getDefaultDownloadLocation());
 		}
 
-		if (disableGeolocation) {
+		if (driverBuilderOptions.isDisableGeolocation()) {
 			experimentalPrefs.put("profile.managed_default_content_settings.geolocation", 2);
 		}
 
-		if (StringUtils.isNotBlank(defaultLanguage)) {
-			options.addArguments("--lang=" + defaultLanguage);
+		if (driverBuilderOptions.getLoggingPreferences() != null) {
+			options.setCapability(ChromeOptions.LOGGING_PREFS, driverBuilderOptions.getLoggingPreferences());
 		}
 
-		if (StringUtils.isNotBlank(userDataDir)) {
-			String udd = Paths.get(System.getProperty("user.dir"), userDataDir).toString();
+		if (StringUtils.isNotBlank(driverBuilderOptions.getDefaultLanguage())) {
+			options.addArguments("--lang=" + driverBuilderOptions.getDefaultLanguage());
+		}
+
+		if (StringUtils.isNotBlank(driverBuilderOptions.getUserDataDir())) {
+			String udd = Paths.get(System.getProperty("user.dir"), driverBuilderOptions.getUserDataDir()).toString();
 			options.addArguments("--user-data-dir=" + udd);
+		} else {
+			options.addArguments("--user-data-dir=" + Files.createTempDirectory("chrome"));
 		}
 
-		if (!translateTheseLanguagesToDefault.isEmpty()) {
-			Map<String, Object> languages = translateTheseLanguagesToDefault.stream()
-					.collect(Collectors.toMap(el -> el, el -> defaultLanguage));
+		if (!driverBuilderOptions.getTranslateTheseLanguagesToDefault().isEmpty()) {
+			Map<String, Object> languages = driverBuilderOptions.getTranslateTheseLanguagesToDefault().stream()
+					.collect(Collectors.toMap(el -> el, el -> driverBuilderOptions.getDefaultLanguage()));
 			experimentalPrefs.put("translate", "{'enabled' : true}");
 			experimentalPrefs.put("translate_whitelists", languages);
 		}
 
-		if (StringUtils.isNotBlank(userAgent)) {
-			options.addArguments("--user-agent=" + userAgent);
+		if (StringUtils.isNotBlank(driverBuilderOptions.getUserAgent())) {
+			options.addArguments("--user-agent=" + driverBuilderOptions.getUserAgent());
 		}
 
 		options.addArguments("--no-default-browser-check");
@@ -159,17 +124,19 @@ public class ChromeDriverBuilder {
 		options.addArguments("--no-sandbox");
 		options.setExperimentalOption("prefs", experimentalPrefs);
 		options.setCapability(CapabilityType.ACCEPT_INSECURE_CERTS, true);
-		options.setPageLoadStrategy(pageLoadStrategy);
+		options.setPageLoadStrategy(driverBuilderOptions.getPageLoadStrategy());
 		options.addArguments("--disable-blink-features=AutomationControlled");
 
-		if (StringUtils.isBlank(browserExecutablePath)) {
-			browserExecutablePath = WebDriverManager.chromedriver().getBrowserPath().get().toString();
+		if (StringUtils.isBlank(driverBuilderOptions.getBrowserExecutablePath())) {
+			driverBuilderOptions
+					.setBrowserExecutablePath(WebDriverManager.chromedriver().getBrowserPath().get().toString());
 		}
 
-		Process process = createBrowserProcess(options, true);
+		Process process = createBrowserProcess(options, true, driverBuilderOptions);
 		ChromeOptions newOptions = new ChromeOptions();
-		newOptions.setExperimentalOption("debuggerAddress", debugHost + ":" + String.valueOf(debugPort));
-		return new ChromeDriverWrapper(new ChromeDriver(newOptions), process, options);
+		newOptions.setExperimentalOption("debuggerAddress",
+				driverBuilderOptions.getDebugHost() + ":" + String.valueOf(driverBuilderOptions.getDebugPort()));
+		return new ChromeDriverWrapper(new ChromeDriver(newOptions), process, options, this);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -183,15 +150,15 @@ public class ChromeDriverBuilder {
 		}
 	}
 
-	private Process createBrowserProcess(ChromeOptions chromeOptions, boolean needPrintChromeInfo)
-			throws RuntimeException {
+	private Process createBrowserProcess(ChromeOptions chromeOptions, boolean needPrintChromeInfo,
+			ChromeDriverBuilderOptions driverBuilderOptions) throws RuntimeException {
 		List<String> args = getArgsFromChromeOptions(chromeOptions);
 		if (args == null) {
 			throw new RuntimeException("can't open browser, args not found");
 		}
 		Process p = null;
 		try {
-			args.add(0, browserExecutablePath);
+			args.add(0, driverBuilderOptions.getBrowserExecutablePath());
 			p = new ProcessBuilder(args).start();
 		} catch (Exception e) {
 			throw new RuntimeException("Unable to open chrome browser", e);
