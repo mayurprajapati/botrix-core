@@ -33,7 +33,7 @@ public class BrowserDriverWrapper extends AppiumDriverWrapper {
 
 	public void resolveRecaptcha() {
 		URI url = getDevtoolsUri();
-		PythonBridgeClient.resolveRecaptcha(url.getHost(), url.getPort());
+		PythonBridgeClient.getInstance().resolveRecaptcha(url.getHost(), url.getPort());
 	}
 
 	public void get(String url) {

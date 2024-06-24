@@ -22,7 +22,7 @@ import io.github.bonigarcia.wdm.WebDriverManager;
 import lombok.SneakyThrows;
 
 public class ChromeDriverBuilder {
-	private ChromeDriverBuilderOptions driverBuilderOptions = new ChromeDriverBuilderOptions();
+	private ChromeDriverBuilderOptions driverBuilderOptions = ChromeDriverBuilderOptions.builder().build();
 
 	public ChromeDriverBuilder wdmChrome(Consumer<WebDriverManager> setup) {
 		var wdm = WebDriverManager.chromedriver();
