@@ -1,4 +1,0 @@
-selenium_recaptcha_solver
-grpcio
-grpcio-tools
-selenium

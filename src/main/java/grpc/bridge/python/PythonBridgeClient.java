@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -23,7 +24,11 @@ public class PythonBridgeClient {
 
 	@SneakyThrows
 	private PythonBridgeClient() {
-		Runtime.getRuntime().exec("python pygrpc/server.py", null, new File(System.getProperty("user.dir")));
+		File server = Paths.get(System.getenv("PYGRPC_SERVER_PATH")).toFile();
+		ProcessBuilder processBuilder = new ProcessBuilder("python", server.getAbsolutePath());
+		processBuilder.directory(server.getParentFile());
+		processBuilder.redirectErrorStream(true);
+		processBuilder.start().waitFor(2, TimeUnit.SECONDS);
 	}
 
 	public static PythonBridgeClient getInstance() {
