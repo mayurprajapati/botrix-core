@@ -4,20 +4,16 @@ import java.lang.reflect.Field;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Optional;
-import java.util.Set;
 
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.openqa.selenium.Cookie;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.devtools.Connection;
 import org.openqa.selenium.devtools.HasDevTools;
 import org.openqa.selenium.remote.RemoteWebDriver;
-import org.openqa.selenium.support.events.EventFiringDecorator;
 
 import appium.wrapper.locator.AppiumLocator;
-import grpc.bridge.python.PythonBridgeClient;
 
 public class AppiumDriverWrapper {
 	RemoteWebDriver driver;
