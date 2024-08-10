@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>appium-wrapper</groupId>
 	<artifactId>appium-wrapper</artifactId>
-	<version>0.0.6</version>
+	<version>0.0.7</version>
 	<name>Appium Wrapper</name>
 
 	<distributionManagement>
