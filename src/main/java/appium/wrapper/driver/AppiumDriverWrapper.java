@@ -3,15 +3,19 @@ package appium.wrapper.driver;
 import java.lang.reflect.Field;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.Duration;
 import java.util.Optional;
 
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.devtools.Connection;
 import org.openqa.selenium.devtools.HasDevTools;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 import appium.wrapper.locator.AppiumLocator;
 
@@ -69,6 +73,39 @@ public class AppiumDriverWrapper {
 
 	public Document jsoup() {
 		return Jsoup.parse(driver.getPageSource());
+	}
+
+	public void waitForInvisible(AppiumLocator locator, int timeout) throws Exception {
+		newWebDriverWait(timeout).until(ExpectedConditions.invisibilityOfElementLocated(locator.get()));
+	}
+
+	public void waitForVisible(AppiumLocator locator, int timeout) {
+		newWebDriverWait(timeout).until(ExpectedConditions.visibilityOfElementLocated(locator.get()));
+	}
+
+	public boolean isVisible(AppiumLocator locator) throws Exception {
+		return findOneIfPresent(locator).map(el -> el.isDisplayed()).orElse(false);
+	}
+
+	public boolean isVisible(AppiumLocator locator, int timeout) {
+		try {
+			waitForVisible(locator, timeout);
+			return true;
+		} catch (TimeoutException e) {
+			return false;
+		}
+	}
+
+	public void type(AppiumLocator locator, CharSequence... text) {
+		findOne(locator).sendKeys(text);
+	}
+
+	public void click(AppiumLocator loc) {
+		findOne(loc).click();
+	}
+
+	public WebDriverWait newWebDriverWait(int timeout) {
+		return new WebDriverWait(driver, Duration.ofSeconds(timeout));
 	}
 
 	public void quit() {

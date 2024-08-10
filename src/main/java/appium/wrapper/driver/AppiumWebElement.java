@@ -67,7 +67,7 @@ public class AppiumWebElement {
 		driver.executeScript("arguments[0].scrollIntoView()", element);
 	}
 
-	public void sendKeys(String text) {
+	public void sendKeys(CharSequence... text) {
 		element.sendKeys(text);
 		LOGGER.info("Typed {} on {}", text, locator);
 	}

@@ -3,6 +3,8 @@ package appium.wrapper.driver;
 import java.util.Map;
 
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.devtools.DevTools;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 
 public class ChromeDriverWrapper extends BrowserDriverWrapper {
 	private ChromeDriverBuilderOptions options;
@@ -20,6 +22,10 @@ public class ChromeDriverWrapper extends BrowserDriverWrapper {
 			removeWebdriverFromPage();
 		}
 		driver.get(url);
+	}
+
+	public DevTools getDevTools() {
+		return driver.getDevTools();
 	}
 
 	private void removeWebdriverFromPage() {
@@ -138,5 +144,13 @@ public class ChromeDriverWrapper extends BrowserDriverWrapper {
 						// eslint-disable-next-line
 						Function.prototype.toString = functionToString
 						"""));
+	}
+
+	public void waitForURL(String url, int timeout) {
+		newWebDriverWait(timeout).until(ExpectedConditions.urlToBe(url));
+	}
+
+	public String getUrl() {
+		return driver.getCurrentUrl();
 	}
 }

@@ -102,7 +102,7 @@ public class ChromeDriverBuilder {
 		}
 
 		if (StringUtils.isNotBlank(driverBuilderOptions.getUserDataDir())) {
-			String udd = Paths.get(System.getProperty("user.dir"), driverBuilderOptions.getUserDataDir()).toString();
+			String udd = Paths.get(driverBuilderOptions.getUserDataDir()).toString();
 			options.addArguments("--user-data-dir=" + udd);
 			driverBuilderOptions.setKeepUserDataDir(true);
 		} else {
