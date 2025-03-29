@@ -6,6 +6,7 @@ import org.openqa.selenium.WebElement;
 import org.slf4j.Logger;
 
 import appium.wrapper.locator.AppiumLocator;
+import appium.wrapper.utils.WaitUtils;
 import lombok.Data;
 
 @Data
@@ -69,6 +70,14 @@ public class AppiumWebElement {
 
 	public void sendKeys(CharSequence... text) {
 		element.sendKeys(text);
+		LOGGER.info("Typed {} on {}", text, locator);
+	}
+
+	public void sendKeysLikeHuman(String text) {
+		for (var c : text.toCharArray()) {
+			element.sendKeys(c + "");
+			WaitUtils.sleepRandomMillis(100, 300);
+		}
 		LOGGER.info("Typed {} on {}", text, locator);
 	}
 

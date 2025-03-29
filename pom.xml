@@ -2,15 +2,17 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>appium-wrapper</groupId>
-	<artifactId>appium-wrapper</artifactId>
+	<groupId>botrix</groupId>
+	<artifactId>automation</artifactId>
 	<version>0.0.7</version>
-	<name>Appium Wrapper</name>
+	<name>Botrix Automation Framework</name>
 
 	<distributionManagement>
 		<repository>
-			<id>reposilite-repository-releases</id>
-			<url>http://192.168.1.16:7564/releases</url>
+			<!--<id>reposilite-repository-releases</id>
+			<url>http://192.168.1.16:7564/releases</url>-->
+			<id>github</id>
+			<url>https://maven.pkg.github.com/mayurprajapati/appium-wrapper</url>
 		</repository>
 	</distributionManagement>
 
@@ -68,7 +70,6 @@
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<version>1.18.24</version>
-			<scope>provided</scope>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
@@ -97,12 +98,22 @@
 		<dependency>
 			<groupId>org.seleniumhq.selenium</groupId>
 			<artifactId>selenium-java</artifactId>
-			<version>4.23.0</version>
+			<version>4.16.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.seleniumhq.selenium</groupId>
-			<artifactId>selenium-devtools-v127</artifactId>
-			<version>4.23.0</version>
+			<artifactId>selenium-devtools-v118</artifactId>
+			<version>4.16.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-remote-driver</artifactId>
+			<version>4.16.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-api</artifactId>
+			<version>4.16.1</version>
 		</dependency>
 
 		<dependency>
@@ -460,7 +471,6 @@
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-engine</artifactId>
 			<version>5.8.1</version>
-			<scope>test</scope>
 		</dependency>
 
 		<dependency>

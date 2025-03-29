@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+	<session-factory>
+
+		<!-- Connection settings -->
+		<property name="hibernate.connection.driver_class">org.postgresql.Driver</property>
+		<property name="hibernate.connection.url">jdbc:postgresql://192.168.1.16:5432/trading</property>
+		<property name="hibernate.connection.username">mario</property>
+		<property name="hibernate.connection.password">mayur@postgresql</property>
+		<property name="connection.pool_size">100</property>
+
+		<!-- SQL dialect -->
+		<property name="hibernate.dialect">org.hibernate.dialect.PostgreSQLDialect</property>
+		<property name="hibernate.connection.autocommit">false</property>
+
+		<!-- Print executed SQL to stdout -->
+		<property name="show_sql">false</property>
+
+		<!-- Update database on startup -->
+		<property name="hibernate.hbm2ddl.auto">update</property>
+
+		<!-- Annotated entity classes -->
+		<mapping class="systems.nse._StockQuoteIndice" />
+		<mapping class="systems.nse._StockQuote" />
+		<mapping class="systems.nse._Holiday" />
+
+		<mapping class="systems.groww._StockInvestment" />
+		<mapping class="systems.groww._OrderDetails" />
+
+		<mapping class="systems.trading._Candle" />
+		<mapping class="systems.trading._DailyCandle" />
+		<mapping class="systems.bse._DailyCandle" />
+		<mapping class="systems.trading._Trading_Query" />
+		<mapping class="systems.trading._Announcement" />
+		<mapping class="systems.trading._BRSR" />
+		<mapping class="systems.trading._BoardMeeting" />
+		<mapping class="systems.trading._CorporateAction" />
+		<mapping class="systems.trading._EventCalender" />
+		<mapping class="systems.trading._InsiderTrading" />
+		<mapping class="systems.trading._TelegramNotification" />
+		<mapping class="systems.trading._MostActiveContract" />
+		<mapping class="systems.trading._MostActiveUnderlying" />
+		<mapping class="systems.trading._SpurtsInOpenInterest" />
+		<mapping class="systems.trading._VolumeGainer" />
+		<mapping class="systems.trading._PriceBandHitter" />
+		<mapping class="systems.trading._FiftyTwoWeekHighLow" />
+		<mapping class="systems.trading._MostActiveSecurity" />
+		<mapping class="systems.marketsmithindia._MSI_Fundamental" />
+		<mapping class="systems.marketsmithindia._MSI_Fundamental_Major_Shareholder" />
+		<mapping class="systems.marketsmithindia._MSI_Fundamental_Quarterly_Earning" />
+		<mapping class="systems.marketsmithindia._MSI_Fundamental_Shareholding_Pattern" />
+		<mapping class="systems.marketsmithindia._MSI_Technical_Pattern" />
+		<mapping class="systems.groww._OptionChain" />
+		<mapping class="systems.chartink._ChartinkScanner" />
+		<mapping class="systems.groww._OptionCandle5Min" />
+		<mapping class="systems.groww._OptionCandle1Min" />
+		<mapping class="systems.nse._OptionCandle1Day" />
+		<mapping class="systems.trading._Expiry" />
+		<mapping class="systems.bse._BseStockQuote" />
+		<mapping class="systems.nse._NseSecurity" />
+		<mapping class="systems.trading._IndianEquity" />
+		<mapping class="systems.marketsmithindia._MSI_Symbol_Detail" />
+		<mapping class="systems.bse._BseVolumeSpurt" />
+		<mapping class="systems.bse._BseCircuitHitter" />
+		<mapping class="systems.hirect._JobUi" />
+		<mapping class="systems.indeed._JobUi" />
+		<mapping class="systems.marketsmithindia._MSI_Filter_Symbol" />
+		<mapping class="systems.postgresql._Cache" />
+
+		<mapping class="bots.trading.feed._Intraday_Bear_Candles_Analyse_Pojo" />
+		<mapping class="bots.trading.backtest._Loser_Becomes_Gainer_Analyse_Pojo" />
+
+	</session-factory>
+</hibernate-configuration>

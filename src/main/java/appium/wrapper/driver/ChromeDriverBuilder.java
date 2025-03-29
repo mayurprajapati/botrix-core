@@ -134,6 +134,10 @@ public class ChromeDriverBuilder {
 			options.addArguments("--no-default-browser-check", "--no-first-run");
 		}
 
+		if (!driverBuilderOptions.getExtensions().isEmpty()) {
+			options.addExtensions(driverBuilderOptions.getExtensions());
+		}
+
 		options.setExperimentalOption("prefs", experimentalPrefs);
 		options.setCapability(CapabilityType.ACCEPT_INSECURE_CERTS, true);
 		options.setPageLoadStrategy(driverBuilderOptions.getPageLoadStrategy());

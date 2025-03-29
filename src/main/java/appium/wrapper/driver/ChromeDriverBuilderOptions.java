@@ -1,5 +1,9 @@
 package appium.wrapper.driver;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,4 +31,7 @@ public class ChromeDriverBuilderOptions extends BrowserDriverBuilderOptions {
 	 */
 	@Builder.Default
 	private boolean noSandbox = true;
+
+	@Builder.Default
+	private List<File> extensions = new ArrayList<>();
 }

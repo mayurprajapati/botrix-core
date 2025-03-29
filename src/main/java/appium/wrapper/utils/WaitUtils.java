@@ -17,6 +17,15 @@ public class WaitUtils {
 		sleepSeconds(random);
 	}
 
+	public static void sleepRandomMillis(long minMillis, long maxMillis) {
+		long random = RandomUtils.randomLongBetween(minMillis, maxMillis);
+		sleepMillis(random);
+	}
+
+	public static void sleepMillis(long millis) {
+		sleep(Duration.ofMillis(millis));
+	}
+
 	public static void sleep(Duration timeout) {
 		try {
 			if (!timeout.isNegative()) {

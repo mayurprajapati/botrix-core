@@ -18,7 +18,8 @@ public class TelegramHelper implements AutoCloseable {
 	private static final TelegramBotsApi botsApi;
 	private static DefaultBotSession session = null;
 
-	public TelegramHelper(TelegramLongPollingBot bot) throws TelegramApiException {
+	@SneakyThrows
+	public TelegramHelper(TelegramLongPollingBot bot) {
 		this.bot = bot;
 		session = (DefaultBotSession) botsApi.registerBot(bot);
 	}
