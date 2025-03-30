@@ -12,7 +12,7 @@
 			<!--<id>reposilite-repository-releases</id>
 			<url>http://192.168.1.16:7564/releases</url>-->
 			<id>github</id>
-			<url>https://maven.pkg.github.com/mayurprajapati/appium-wrapper</url>
+			<url>https://maven.pkg.github.com/mayurprajapati/botrix-core</url>
 		</repository>
 	</distributionManagement>
 
