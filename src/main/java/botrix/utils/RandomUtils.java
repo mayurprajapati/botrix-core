@@ -1,4 +1,4 @@
-package botrix.internal.utils;
+package botrix.utils;
 
 import org.apache.commons.lang3.RandomStringUtils;
 

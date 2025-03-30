@@ -7,7 +7,7 @@ import org.apache.commons.collections4.CollectionUtils;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 
-import botrix.internal.utils.ResourceUtils;
+import botrix.utils.ResourceUtils;
 
 public class GoogleUtils {
 	private GoogleUtils() {

@@ -1,4 +1,4 @@
-package botrix.internal.utils;
+package botrix.utils;
 
 import javax.annotation.Nullable;
 
@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 
 import botrix.internal.logging.LoggerFactory;
 import lombok.experimental.UtilityClass;
-import systems.postgresql.Helper;
+import systems.postgresql.HibernateHelper;
 
 @UtilityClass
 public class HibernateUtils {
@@ -15,7 +15,7 @@ public class HibernateUtils {
 	// Hibernate Transaction Utils
 	@UtilityClass
 	public static class TransactionUtils {
-		private static final Logger logger = LoggerFactory.getLogger(Helper.class);
+		private static final Logger logger = LoggerFactory.getLogger(HibernateHelper.class);
 
 		/**
 		 * Try rollback - if not null and is active also suppresses exception if any,

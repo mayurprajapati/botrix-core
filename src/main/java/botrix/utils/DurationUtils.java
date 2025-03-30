@@ -1,4 +1,4 @@
-package botrix.internal.utils;
+package botrix.utils;
 
 import java.time.Duration;
 

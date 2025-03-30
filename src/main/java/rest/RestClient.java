@@ -31,7 +31,7 @@ import com.google.common.net.InternetDomainName;
 import botrix.commons.http.URIUtils;
 import botrix.internal.logging.LoggerFactory;
 import botrix.internal.prefs.Preferences;
-import botrix.internal.utils.WaitUtils;
+import botrix.utils.WaitUtils;
 import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.config.HttpClientConfig;

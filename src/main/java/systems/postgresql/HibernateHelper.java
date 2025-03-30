@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,39 +16,45 @@ import org.apache.commons.lang3.function.FailableRunnable;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.hibernate.boot.Metadata;
-import org.hibernate.boot.MetadataSources;
-import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
+import org.hibernate.cfg.Configuration;
 import org.hibernate.query.Query;
+import org.hibernate.service.ServiceRegistry;
 import org.slf4j.Logger;
 
 import botrix.internal.gson.GsonUtils;
 import botrix.internal.logging.LoggerFactory;
-import botrix.internal.utils.HibernateUtils;
-import botrix.internal.utils.HibernateUtils.TransactionUtils;
+import botrix.utils.HibernateUtils;
+import botrix.utils.HibernateUtils.TransactionUtils;
 import lombok.Synchronized;
 import lombok.experimental.ExtensionMethod;
 
 @ExtensionMethod({ HibernateUtils.class, TransactionUtils.class })
-public class Helper implements AutoCloseable {
-	private static final Logger logger = LoggerFactory.getLogger(Helper.class);
-	private static ThreadLocal<Helper> sessions = new ThreadLocal<>();
-	private static final Logger LOG = LoggerFactory.getLogger(Helper.class);
+public class HibernateHelper implements AutoCloseable {
+	private static final Logger LOG = LoggerFactory.getLogger(HibernateHelper.class);
 
-	private static SessionFactory factory;
-
+	private static Map<Configuration, SessionFactory> factories = new HashMap<>();
+	public SessionFactory factory = null;
 	public Session session = null;
 
-	static {
-		StandardServiceRegistry ssr = new StandardServiceRegistryBuilder().configure("hibernate.cfg.xml").build();
-		Metadata meta = new MetadataSources(ssr).getMetadataBuilder().build();
+//	static {
+//		StandardServiceRegistry ssr = new StandardServiceRegistryBuilder().configure("hibernate.cfg.xml").build();
+//		Metadata meta = new MetadataSources(ssr).getMetadataBuilder().build();
+//
+//		factories = meta.getSessionFactoryBuilder().build();
+//	}
 
-		factory = meta.getSessionFactoryBuilder().build();
-	}
+	public HibernateHelper(Configuration configuration) {
+		if (!factories.containsKey(configuration)) {
+			ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
+					.applySettings(configuration.getProperties()).build();
 
-	public Helper() {
-		session = factory.openSession();
+			// Build session factory
+			var sessionFactory = configuration.buildSessionFactory(serviceRegistry);
+			factories.put(configuration, sessionFactory);
+		}
+		factory = factories.get(configuration);
+		session = factories.get(configuration).openSession();
 //		Connection c = ((SessionImpl) session).connection();
 //		PGConnection pg = (PGConnection) c;
 //
@@ -211,7 +218,7 @@ public class Helper implements AutoCloseable {
 		});
 	}
 
-	public static <T extends Throwable> void withSessionFactory(FailableRunnable<T> code) throws T {
+	public <T extends Throwable> void withSessionFactory(FailableRunnable<T> code) throws T {
 		try {
 			code.run();
 		} catch (Throwable e) {
@@ -222,7 +229,7 @@ public class Helper implements AutoCloseable {
 		}
 	}
 
-	public static void closeSessionFactory() {
+	public void closeSessionFactory() {
 		factory.close();
 	}
 }

@@ -12,9 +12,9 @@ import com.google.cloud.firestore.Query;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
 
 import botrix.internal.logging.LoggerFactory;
-import botrix.internal.utils.FirebaseUtils;
-import botrix.internal.utils.TextUtils;
-import botrix.internal.utils.WaitUtils;
+import botrix.utils.FirebaseUtils;
+import botrix.utils.TextUtils;
+import botrix.utils.WaitUtils;
 import lombok.SneakyThrows;
 
 public class FirebaseHelper {

@@ -1,4 +1,4 @@
-package botrix.internal.utils;
+package botrix.utils;
 
 import java.nio.charset.Charset;
 import java.nio.file.Path;

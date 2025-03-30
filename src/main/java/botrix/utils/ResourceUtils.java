@@ -1,4 +1,4 @@
-package botrix.internal.utils;
+package botrix.utils;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
