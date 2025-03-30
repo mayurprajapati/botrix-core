@@ -22,8 +22,7 @@ public class FirebaseUtils {
 			if (firestore != null)
 				return firestore;
 
-			FileInputStream in = new FileInputStream(FileHandlingUtils
-					.getListOfAllFiles(System.getProperty("user.dir"), "serviceAccount.json").iterator().next());
+			FileInputStream in = new FileInputStream(System.getenv("GOOGLE_SERVICE_ACCOUNT"));
 			GoogleCredentials credentials = GoogleCredentials.fromStream(in);
 			FirebaseOptions options = FirebaseOptions.builder().setCredentials(credentials).build();
 			FirebaseApp.initializeApp(options);
