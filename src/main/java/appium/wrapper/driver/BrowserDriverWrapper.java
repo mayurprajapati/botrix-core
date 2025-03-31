@@ -3,7 +3,9 @@ package appium.wrapper.driver;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -12,6 +14,7 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 
 import appium.wrapper.locator.AppiumLocator;
 import grpc.bridge.python.PythonBridgeClient;
+import io.restassured.http.Cookies;
 import lombok.SneakyThrows;
 
 public class BrowserDriverWrapper extends AppiumDriverWrapper {
@@ -21,10 +24,6 @@ public class BrowserDriverWrapper extends AppiumDriverWrapper {
 			BrowserDriverBuilderOptions options) {
 		super(driver, applicationProcess);
 		this.options = options;
-	}
-
-	public Set<Cookie> getCookies() {
-		return driver.manage().getCookies();
 	}
 
 	public boolean isRecaptchaAvailable() {
@@ -38,6 +37,39 @@ public class BrowserDriverWrapper extends AppiumDriverWrapper {
 
 	public void get(String url) {
 		driver.get(url);
+	}
+
+	public Set<Cookie> getCookies() {
+		return driver.manage().getCookies();
+	}
+
+	public Cookies getCookiesForRestAssured() {
+		List<io.restassured.http.Cookie> restAssuredCookies = getCookies().stream()
+				.map(cookie -> new io.restassured.http.Cookie.Builder(cookie.getName(), cookie.getValue())
+						.setDomain(cookie.getDomain()).setPath(cookie.getPath()).setSecured(cookie.isSecure())
+						.setHttpOnly(cookie.isHttpOnly()).setExpiryDate(cookie.getExpiry()).build())
+				.collect(Collectors.toList());
+		return new Cookies(restAssuredCookies);
+	}
+
+	public Cookie getCookieNamed(String name) {
+		return driver.manage().getCookieNamed(name);
+	}
+
+	public void addCookie(Cookie cookie) {
+		driver.manage().addCookie(cookie);
+	}
+
+	public void deleteCookie(Cookie cookie) {
+		driver.manage().deleteCookie(cookie);
+	}
+
+	public void deleteCookieNamed(String name) {
+		driver.manage().deleteCookieNamed(name);
+	}
+
+	public void deleteAllCookies() {
+		driver.manage().deleteAllCookies();
 	}
 
 	@SneakyThrows
