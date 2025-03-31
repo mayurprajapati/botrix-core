@@ -1,8 +1,6 @@
 package appium.wrapper.locator;
 
 import org.openqa.selenium.By;
-import org.openqa.selenium.SearchContext;
-import org.openqa.selenium.WebElement;
 
 import io.appium.java_client.AppiumBy;
 import lombok.EqualsAndHashCode;
@@ -13,12 +11,18 @@ import lombok.Getter;
 public class AppiumLocator {
 	private String locatorName;
 	private String locatorValue;
+	private int nthIndex;
 	private LocatorType locatorType;
 
 	private AppiumLocator(LocatorType type, String locatorName, String locatorValue) {
+		this(type, locatorName, locatorValue, -1);
+	}
+
+	private AppiumLocator(LocatorType type, String locatorName, String locatorValue, int nthIndex) {
 		this.locatorType = type;
 		this.locatorName = locatorName;
 		this.locatorValue = locatorValue;
+		this.nthIndex = nthIndex;
 	}
 
 	public By get() {
@@ -176,6 +180,98 @@ public class AppiumLocator {
 		return new AppiumLocator(LocatorType.CONTAINS_TEXT_IGNORE_CASE, locatorName, locatorValue);
 	}
 
+	public static AppiumLocator byXpath(String locatorName, String locatorValue, int nthIndex) {
+		return new AppiumLocator(LocatorType.XPATH, locatorName, locatorValue, nthIndex);
+	}
+
+	public static AppiumLocator byAccessibilityId(String locatorName, String locatorValue, int nthIndex) {
+		return new AppiumLocator(LocatorType.ACCESSIBILITY_ID, locatorName, locatorValue, nthIndex);
+	}
+
+	public static AppiumLocator byAndroidDataMatcher(String locatorName, String locatorValue, int nthIndex) {
+		return new AppiumLocator(LocatorType.ANDROID_DATA_MATCHER, locatorName, locatorValue, nthIndex);
+	}
+
+	public static AppiumLocator byAndroidUiAutomator(String locatorName, String locatorValue, int nthIndex) {
+		return new AppiumLocator(LocatorType.ANDROID_UI_AUTOMATOR, locatorName, locatorValue, nthIndex);
+	}
+
+	public static AppiumLocator byAndroidViewMatcher(String locatorName, String locatorValue, int nthIndex) {
+		return new AppiumLocator(LocatorType.ANDROID_VIEW_MATCHER, locatorName, locatorValue, nthIndex);
+	}
+
+	public static AppiumLocator byAndroidViewTag(String locatorName, String locatorValue, int nthIndex) {
+		return new AppiumLocator(LocatorType.ANDROID_VIEW_TAG, locatorName, locatorValue, nthIndex);
+	}
+
+	public static AppiumLocator byClassName(String locatorName, String locatorValue, int nthIndex) {
+		return new AppiumLocator(LocatorType.CLASS_NAME, locatorName, locatorValue, nthIndex);
+	}
+
+	public static AppiumLocator byId(String locatorName, String locatorValue, int nthIndex) {
+		return new AppiumLocator(LocatorType.ID, locatorName, locatorValue, nthIndex);
+	}
+
+	public static AppiumLocator byName(String locatorName, String locatorValue, int nthIndex) {
+		return new AppiumLocator(LocatorType.NAME, locatorName, locatorValue, nthIndex);
+	}
+
+	public static AppiumLocator byCustom(String locatorName, String locatorValue, int nthIndex) {
+		return new AppiumLocator(LocatorType.CUSTOM, locatorName, locatorValue, nthIndex);
+	}
+
+	public static AppiumLocator byImage(String locatorName, String locatorValue, int nthIndex) {
+		return new AppiumLocator(LocatorType.IMAGE, locatorName, locatorValue, nthIndex);
+	}
+
+	public static AppiumLocator byiOSClassChain(String locatorName, String locatorValue, int nthIndex) {
+		return new AppiumLocator(LocatorType.IOS_CLASS_CHAIN, locatorName, locatorValue, nthIndex);
+	}
+
+	public static AppiumLocator byiOSNsPredicateString(String locatorName, String locatorValue, int nthIndex) {
+		return new AppiumLocator(LocatorType.IOS_NSPREDICATE_STRING, locatorName, locatorValue, nthIndex);
+	}
+
+	public static AppiumLocator byLinkText(String locatorName, String locatorValue, int nthIndex) {
+		return new AppiumLocator(LocatorType.LINK_TEXT, locatorName, locatorValue, nthIndex);
+	}
+
+	public static AppiumLocator byPartialLinkText(String locatorName, String locatorValue, int nthIndex) {
+		return new AppiumLocator(LocatorType.PARTIAL_LINK_TEXT, locatorName, locatorValue, nthIndex);
+	}
+
+	public static AppiumLocator byTagName(String locatorName, String locatorValue, int nthIndex) {
+		return new AppiumLocator(LocatorType.TAG_NAME, locatorName, locatorValue, nthIndex);
+	}
+
+	public static AppiumLocator byCssSelector(String locatorName, String locatorValue, int nthIndex) {
+		return new AppiumLocator(LocatorType.CSS_SELECTOR, locatorName, locatorValue, nthIndex);
+	}
+
+	public static AppiumLocator byExactText(String locatorName, String locatorValue, int nthIndex) {
+		return new AppiumLocator(LocatorType.EXACT_TEXT, locatorName, locatorValue, nthIndex);
+	}
+
+	public static AppiumLocator byExactTextIgnoreCase(String locatorName, String locatorValue, int nthIndex) {
+		return new AppiumLocator(LocatorType.EXACT_TEXT_IGNORE_CASE, locatorName, locatorValue, nthIndex);
+	}
+
+	public static AppiumLocator byContainsText(String locatorName, String locatorValue, int nthIndex) {
+		return new AppiumLocator(LocatorType.CONTAINS_TEXT, locatorName, locatorValue, nthIndex);
+	}
+
+	public static AppiumLocator byContainsTextIgnoreCase(String locatorName, String locatorValue, int nthIndex) {
+		return new AppiumLocator(LocatorType.CONTAINS_TEXT_IGNORE_CASE, locatorName, locatorValue, nthIndex);
+	}
+
+	public static AppiumLocator by(LocatorType locatorType, String locatorName, String locatorValue) {
+		return by(locatorType, locatorName, locatorValue, -1);
+	}
+
+	public static AppiumLocator by(LocatorType locatorType, String locatorName, String locatorValue, int nthIndex) {
+		return new AppiumLocator(locatorType, locatorName, locatorValue, nthIndex);
+	}
+
 	public static enum LocatorType {
 		// @formatter:off
 		XPATH,
@@ -202,5 +298,14 @@ public class AppiumLocator {
 		CONTAINS_TEXT_IGNORE_CASE
 		;
 		// @formatter:on
+	}
+
+	@Override
+	public String toString() {
+		if (nthIndex >= 0) {
+			return locatorName + " at position " + (nthIndex + 1);
+		} else {
+			return locatorName;
+		}
 	}
 }

@@ -1,22 +1,25 @@
 package appium.wrapper.driver;
 
+import org.apache.commons.lang3.function.FailableCallable;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.Rectangle;
+import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebElement;
 import org.slf4j.Logger;
 
 import appium.wrapper.locator.AppiumLocator;
 import appium.wrapper.utils.WaitUtils;
+import botrix.utils.HasLogger;
+import botrix.utils.RetryUtils;
 import lombok.Data;
 
 @Data
-public class AppiumWebElement {
+public class AppiumWebElement implements HasLogger {
 	private WebElement element;
 	private AppiumLocator locator;
 	private int nthIndex = -1;
 	private AppiumWebElement parent;
 	private AppiumDriverWrapper driver;
-	private static final Logger LOGGER = org.slf4j.LoggerFactory.getLogger(AppiumWebElement.class);
 
 	public AppiumWebElement(WebElement element, AppiumLocator locator, AppiumWebElement parent,
 			AppiumDriverWrapper driver) {
@@ -32,12 +35,12 @@ public class AppiumWebElement {
 		this.nthIndex = nthIndex;
 	}
 
-	public AppiumWebElement findOne(AppiumLocator loc) {
-		return AppiumSearchContextHelper.findOne(loc, parent, driver);
+	public AppiumWebElement findElement(AppiumLocator loc) {
+		return AppiumSearchContextHelper.findElement(loc, parent, driver, nthIndex);
 	}
 
-	public AppiumWebElements findAll(AppiumLocator loc) {
-		return AppiumSearchContextHelper.findAll(loc, parent, driver);
+	public AppiumWebElements findElements(AppiumLocator loc) {
+		return AppiumSearchContextHelper.findElements(loc, parent, driver);
 	}
 
 	public void click() {
@@ -130,4 +133,12 @@ public class AppiumWebElement {
 	public String href() {
 		return element.getAttribute("href");
 	}
+
+//	private <T> T doActionRetryWithResult(FailableCallable<T, RuntimeException> code) {
+//		try {
+//			return code.call();
+//		} catch (StaleElementReferenceException e) {
+//			findElement(locator);
+//		}
+//	}
 }

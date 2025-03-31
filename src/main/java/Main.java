@@ -15,15 +15,15 @@ public class Main {
 				.build();
 		try {
 			var app = BrowserDriverBuilder.chrome().wdmDefault().withOptions(options).build();
-			app.get("https://www.kucoin.com/ucenter/signup");
+			app.get("https://the-internet.herokuapp.com/infinite_scroll");
 			var loc = AppiumLocator.byXpath("Phone Number Input", "//div[@id='login_account_input']//input");
 			WaitUtils.sleepRandomSeconds(1, 3);
-			app.findOne(loc).sendKeys("6302389200");
+			app.findElement(loc).sendKeys("6302389200");
 			WaitUtils.sleepRandomSeconds(1, 3);
 //			app.resolveRecaptcha();
 			var signupButton = AppiumLocator.byXpath("Signup Button",
 					"//button[@data-inspector=\"signup_confirm_btn\"]");
-			app.findOne(signupButton).click();
+			app.findElement(signupButton).click();
 			app.quit();
 		} catch (Exception e) {
 			e.printStackTrace();

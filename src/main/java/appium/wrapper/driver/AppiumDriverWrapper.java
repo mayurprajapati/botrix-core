@@ -18,8 +18,9 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import appium.wrapper.locator.AppiumLocator;
+import botrix.utils.HasLogger;
 
-public class AppiumDriverWrapper {
+public class AppiumDriverWrapper implements HasLogger {
 	RemoteWebDriver driver;
 	private Process applicationProcess;
 
@@ -33,12 +34,12 @@ public class AppiumDriverWrapper {
 		}));
 	}
 
-	public AppiumWebElement findOne(AppiumLocator loc) {
-		return AppiumSearchContextHelper.findOne(loc, null, this);
+	public AppiumWebElement findElement(AppiumLocator loc) {
+		return AppiumSearchContextHelper.findElement(loc, null, this);
 	}
 
-	public AppiumWebElements findAll(AppiumLocator loc) {
-		return AppiumSearchContextHelper.findAll(loc, null, this);
+	public AppiumWebElements findElements(AppiumLocator loc) {
+		return AppiumSearchContextHelper.findElements(loc, null, this);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -47,14 +48,14 @@ public class AppiumDriverWrapper {
 	}
 
 	public boolean isPresent(AppiumLocator loc) {
-		return findOneIfPresent(loc).isPresent();
+		return findElementIfPresent(loc) != null;
 	}
 
-	public Optional<AppiumWebElement> findOneIfPresent(AppiumLocator loc) {
+	public AppiumWebElement findElementIfPresent(AppiumLocator loc) {
 		try {
-			return Optional.of(findAll(loc).get(0));
+			return findElements(loc).get(0);
 		} catch (NoSuchElementException | IndexOutOfBoundsException e) {
-			return Optional.empty();
+			return null;
 		}
 	}
 
@@ -84,7 +85,11 @@ public class AppiumDriverWrapper {
 	}
 
 	public boolean isVisible(AppiumLocator locator) throws Exception {
-		return findOneIfPresent(locator).map(el -> el.isDisplayed()).orElse(false);
+		var el = findElementIfPresent(locator);
+		if (el == null) {
+			return false;
+		}
+		return el.isDisplayed();
 	}
 
 	public boolean isVisible(AppiumLocator locator, int timeout) {
@@ -97,11 +102,26 @@ public class AppiumDriverWrapper {
 	}
 
 	public void type(AppiumLocator locator, CharSequence... text) {
-		findOne(locator).sendKeys(text);
+		findElement(locator).sendKeys(text);
 	}
 
 	public void click(AppiumLocator loc) {
-		findOne(loc).click();
+		findElement(loc).click();
+	}
+
+	public void clickTimes(AppiumLocator loc, int times) {
+		var el = findElement(loc);
+		for (int i = 0; i < times; i++) {
+			el.click();
+		}
+		LOGGER.info("Clicked on {} {} times", loc.getLocatorName(), times);
+	}
+
+	public void clickAll(AppiumLocator loc) {
+		var els = findElements(loc);
+		for (var el : els) {
+			el.click();
+		}
 	}
 
 	public WebDriverWait newWebDriverWait(int timeout) {
