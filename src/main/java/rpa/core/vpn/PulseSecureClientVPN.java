@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 
 import botrix.internal.logging.LoggerFactory;
 import rpa.core.driver.G;
-import rpa.core.exceptions.BishopDataConstraintException;
+import rpa.core.exceptions.BishopException;
 import rpa.core.exceptions.BishopRuleViolationException;
 import rpa.core.file.OSValidator;
 import rpa.core.windowsprocess.WindowsProcess;
@@ -24,10 +24,10 @@ public class PulseSecureClientVPN {
 				G.executionMetrics.setVpn(true);
 			} else {
 				LOGGER.error("Unable to login to Pulse Secure");
-				throw new BishopDataConstraintException("Unable to connect to Pulse Secure. " + streamFromTermial);
+				throw new BishopException("Unable to connect to Pulse Secure. " + streamFromTermial);
 			}
 
-		} catch (BishopDataConstraintException e) {
+		} catch (BishopException e) {
 			throw e;
 		} catch (Exception e) {
 			LOGGER.error("Pulse Secure VPN was not connected successfully", e);

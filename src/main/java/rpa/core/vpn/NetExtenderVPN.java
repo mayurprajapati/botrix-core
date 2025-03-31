@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 
 import botrix.internal.logging.LoggerFactory;
 import rpa.core.driver.G;
-import rpa.core.exceptions.BishopDataConstraintException;
+import rpa.core.exceptions.BishopException;
 import rpa.core.file.OSValidator;
 import rpa.core.windowsprocess.WindowsProcess;
 
@@ -20,25 +20,27 @@ public class NetExtenderVPN {
 	public static void connect(String host, String domain, String user, String password) throws Exception {
 		try {
 			String streamFromTermial = connectToVPN(host, domain, user, password);
-			if (StringUtils.containsIgnoreCase(streamFromTermial, "connected successfully") || StringUtils
-					.containsIgnoreCase(streamFromTermial, "NetExtender has connected with following information")
-					||  StringUtils
-					.containsIgnoreCase(streamFromTermial, "NetExtender has connected with following information")) {
+			if (StringUtils.containsIgnoreCase(streamFromTermial, "connected successfully")
+					|| StringUtils.containsIgnoreCase(streamFromTermial,
+							"NetExtender has connected with following information")
+					|| StringUtils.containsIgnoreCase(streamFromTermial,
+							"NetExtender has connected with following information")) {
 				LOGGER.info("Connection successful to NetExtender");
 				G.executionMetrics.setVpn(true);
 			} else {
 				streamFromTermial = connectToVPN(host, domain, user, password);
-				if (StringUtils.containsIgnoreCase(streamFromTermial, "connected successfully") || StringUtils
-						.containsIgnoreCase(streamFromTermial, "NetExtender has connected with following information")) {
+				if (StringUtils.containsIgnoreCase(streamFromTermial, "connected successfully")
+						|| StringUtils.containsIgnoreCase(streamFromTermial,
+								"NetExtender has connected with following information")) {
 					LOGGER.info("Connection successful to NetExtender");
 					G.executionMetrics.setVpn(true);
 				} else {
 					LOGGER.error("Unable to login to NetExtender");
-					throw new BishopDataConstraintException("Unable to connect to NetExtender. " + streamFromTermial);
+					throw new BishopException("Unable to connect to NetExtender. " + streamFromTermial);
 				}
 			}
 
-		} catch (BishopDataConstraintException e) {
+		} catch (BishopException e) {
 			throw e;
 		} catch (Exception e) {
 			LOGGER.error("NetExtender VPN was not connected successfully", e);
@@ -51,11 +53,11 @@ public class NetExtenderVPN {
 		String s = null;
 		Process proc = null;
 		if (OSValidator.isWindows()) {
-			String cmdcommand = String.format("%s connect -s %s -u %s -p %s -d %s --always-trust %s", NETEXTENDER_CLI_WINDOWS, host, user,
-					password, domain, host);
+			String cmdcommand = String.format("%s connect -s %s -u %s -p %s -d %s --always-trust %s",
+					NETEXTENDER_CLI_WINDOWS, host, user, password, domain, host);
 			String[] cmdCommands = new String[] { "cmd", "/C", cmdcommand };
-			String[] a = {"taskkill /F /IM NEIdle.exe"};
-			String[] b = {"taskkill /F /IM NEGui.exe"};
+			String[] a = { "taskkill /F /IM NEIdle.exe" };
+			String[] b = { "taskkill /F /IM NEGui.exe" };
 			proc = WindowsProcess.runCommandAndWait(a);
 			proc = WindowsProcess.runCommandAndWait(b);
 			LOGGER.info("Command used in CMD:\n{}", cmdcommand.replace(password, "**********"));
@@ -66,12 +68,12 @@ public class NetExtenderVPN {
 					host, user, password, domain);
 			String[] terminalCommands = new String[] { "/bin/bash", "-c", terminalCommand };
 			LOGGER.info("Command used in Terminal :\n{}", terminalCommand.replace(password, "**********"));
-			String[] kill = {"pkill netExtender"};
+			String[] kill = { "pkill netExtender" };
 			proc = WindowsProcess.runCommandAndWait(kill);
 			s = WindowsProcess.streamOutput(WindowsProcess.runCommandAndWait(terminalCommands));
 		} else if (OSValidator.isUnix()) {
-			String terminalCommand = String.format("%s -s %s -u %s -p %s -d %s --always-trust %s", NETEXTENDER_CLI_LINUX,
-					host, user, password, domain, host);
+			String terminalCommand = String.format("%s -s %s -u %s -p %s -d %s --always-trust %s",
+					NETEXTENDER_CLI_LINUX, host, user, password, domain, host);
 			String[] terminalCommands = new String[] { "/bin/bash", "-c", terminalCommand };
 			LOGGER.info("Command used in Terminal :\n{}", terminalCommand.replace(password, "**********"));
 			s = WindowsProcess.streamOutput(WindowsProcess.runCommandAndWait(terminalCommands));

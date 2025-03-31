@@ -18,7 +18,6 @@ import org.slf4j.Logger;
 import botrix.internal.logging.LoggerFactory;
 import rpa.core.driver.Browser;
 import rpa.core.driver.G;
-import rpa.core.exceptions.BishopDataConstraintException;
 import rpa.core.exceptions.BishopException;
 import rpa.core.exceptions.BishopRuleViolationException;
 import rpa.core.file.ParseUtils;
@@ -94,14 +93,14 @@ public class Dropdown {
 				} else {
 					logger.error(String.format("%s status not found in dropdown %s and no custom mapping found.",
 							visibleText, objectName));
-					throw new BishopDataConstraintException(
+					throw new BishopException(
 							String.format("%s status not found in dropdown %s and no custom mapping found.",
 									visibleText, objectName));
 				}
 			} else {
 				logger.error(String.format("%s status not found in dropdown %s and no custom mapping found.",
 						visibleText, objectName));
-				throw new BishopDataConstraintException(String.format(
+				throw new BishopException(String.format(
 						"%s status not found in dropdown %s and no custom mapping found.", visibleText, objectName));
 			}
 		}
@@ -123,7 +122,7 @@ public class Dropdown {
 		}
 		if (actualVisibleText == null) {
 			logger.error(String.format("No value matching '%s' found for dropdown %s", partialValue, objectName));
-			throw new BishopDataConstraintException(
+			throw new BishopException(
 					String.format("No value matching '%s' found for dropdown %s", partialValue, objectName));
 		}
 		return actualVisibleText;
@@ -147,7 +146,7 @@ public class Dropdown {
 		} else {
 			logger.error(String.format(Arrays.deepToString(optionsToCheck) + " options not found for dropdown %s",
 					objectName));
-			throw new BishopDataConstraintException(String
+			throw new BishopException(String
 					.format(Arrays.deepToString(optionsToCheck) + " options not found for dropdown %s", objectName));
 		}
 	}
@@ -166,8 +165,7 @@ public class Dropdown {
 			selectByVisibleText(objectXpath, objectName, actualVisibleText);
 		} else {
 			logger.error(String.format(optionsToCheck + " options not found for dropdown %s", objectName));
-			throw new BishopDataConstraintException(
-					String.format(optionsToCheck + " options not found for dropdown %s", objectName));
+			throw new BishopException(String.format(optionsToCheck + " options not found for dropdown %s", objectName));
 		}
 	}
 
@@ -190,8 +188,7 @@ public class Dropdown {
 			select.selectByVisibleText(visibleText);
 			logger.info("Selected " + visibleText + " of the dropdown " + objectName);
 		} catch (NoSuchElementException e) {
-			throw new BishopDataConstraintException(
-					String.format("%s is not an option for dropdown %s", visibleText, objectName));
+			throw new BishopException(String.format("%s is not an option for dropdown %s", visibleText, objectName));
 		} catch (Exception e) {
 			logger.error("", e);
 			throw new Exception(
@@ -380,12 +377,12 @@ public class Dropdown {
 
 				if (partialMatch) {
 					if (!StringUtils.containsIgnoreCase(optionSelected, optionToSelect)) {
-						throw new BishopDataConstraintException(
+						throw new BishopException(
 								"Option " + optionToSelect + " not present in dropdown: " + objectName);
 					}
 				} else {
 					if (!optionSelected.equalsIgnoreCase(optionToSelect)) {
-						throw new BishopDataConstraintException(
+						throw new BishopException(
 								"Option " + optionToSelect + " not present in dropdown: " + objectName);
 					}
 				}
@@ -420,8 +417,7 @@ public class Dropdown {
 				}
 			}
 		} catch (NoSuchElementException e) {
-			throw new BishopDataConstraintException(
-					String.format("%s is not an option for dropdown %s", optionNotFound, objectName));
+			throw new BishopException(String.format("%s is not an option for dropdown %s", optionNotFound, objectName));
 		} catch (Exception e) {
 			throw new Exception(
 					String.format("Failed to select options %s from the %s dropdown", optionsToSelect, objectName), e);

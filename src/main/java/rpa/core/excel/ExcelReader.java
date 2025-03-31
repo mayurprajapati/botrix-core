@@ -37,7 +37,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import botrix.internal.logging.LoggerFactory;
-import rpa.core.exceptions.BishopDataConstraintException;
+import rpa.core.exceptions.BishopException;
 import rpa.core.exceptions.BishopRuleViolationException;
 import rpa.core.file.ParseUtils;
 
@@ -192,7 +192,7 @@ public class ExcelReader {
 			Workbook workbook = loadWorkbook(excelFile);
 			Sheet sheet = loadSheet(workbook, sheetName);
 			if (sheet == null) {
-				throw new BishopDataConstraintException(
+				throw new BishopException(
 						String.format("Sheet: %s not found in excel %s", sheetName, FilenameUtils.getName(excelFile)));
 			}
 			int lastnum1 = sheet.getLastRowNum();
@@ -214,10 +214,10 @@ public class ExcelReader {
 		} catch (NullPointerException e) {
 			LOGGER.error("Incomplete excel read: " + excelFile, e);
 			return rows;
-		} catch (BishopDataConstraintException e) {
+		} catch (BishopException e) {
 			throw e;
-		}catch (Exception e) {
-			throw new BishopRuleViolationException("Failed to read from excel: " + FilenameUtils.getName(excelFile),e);
+		} catch (Exception e) {
+			throw new BishopRuleViolationException("Failed to read from excel: " + FilenameUtils.getName(excelFile), e);
 		}
 		return rows;
 	}
@@ -295,7 +295,7 @@ public class ExcelReader {
 				if (!dataRow.isEmpty())
 					rows.add(dataRow);
 			}
-		} catch (BishopRuleViolationException | BishopDataConstraintException e) {
+		} catch (BishopException e) {
 			throw e;
 		} catch (NullPointerException e) {
 			LOGGER.error("Incomplete excel read: " + excelFile, e);

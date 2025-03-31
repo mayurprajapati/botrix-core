@@ -23,6 +23,10 @@ public class BishopException extends Exception {
 		this(message, true);
 	}
 
+	public BishopException(String message, Exception e) {
+		this(message, e, true);
+	}
+
 	public BishopException(String message, boolean takeScreenshot) {
 		this(message, null, takeScreenshot);
 	}
