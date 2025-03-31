@@ -9,7 +9,6 @@ import com.google.firebase.FirebaseOptions;
 import com.google.firebase.cloud.FirestoreClient;
 
 import rpa.core.exceptions.BishopRuntimeException;
-import rpa.core.file.FileHandlingUtils;
 
 public class FirebaseUtils {
 	private static Firestore firestore;
