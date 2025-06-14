@@ -55,7 +55,7 @@ public class ChromeDriverBuilder {
 		options.setExperimentalOption("excludeSwitches", Collections.singletonList("enable-automation"));
 
 		if (driverBuilderOptions.isHeadless()) {
-			options.addArguments("headless").addArguments("disable-gpu");
+			options.addArguments("--headless").addArguments("--disable-gpu");
 		}
 
 		if (driverBuilderOptions.isIncognito()) {
