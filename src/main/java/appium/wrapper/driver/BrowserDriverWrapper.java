@@ -84,6 +84,8 @@ public class BrowserDriverWrapper extends AppiumDriverWrapper {
 					if (StringUtils.containsAnyIgnoreCase(e.getMessage(),
 							"DOS or POSIX file operations not available for", "Cannot delete file")) {
 						Thread.sleep(100);
+					} else if (e.getMessage().contains("File does not exist")) {
+						return;
 					} else {
 						throw e;
 					}
