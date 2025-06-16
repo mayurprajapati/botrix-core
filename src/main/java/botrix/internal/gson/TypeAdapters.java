@@ -207,6 +207,11 @@ public class TypeAdapters {
 				value = cleanNumber(value);
 			}
 
+			if (StringUtils.contains(value, ".")) {
+				Double val = Double.valueOf(value);
+				return val.longValue();
+			}
+
 			return StringUtils.isBlank(value) ? null : Long.valueOf(value);
 		}
 	}
