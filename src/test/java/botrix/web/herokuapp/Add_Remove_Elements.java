@@ -15,7 +15,7 @@ public class Add_Remove_Elements {
 			app.get("https://the-internet.herokuapp.com/add_remove_elements/");
 
 			int times = 10;
-			app.clickTimes(addElement, 1000);
+			app.clickTimes(addElement, times);
 
 			app.clickAll(delete);
 

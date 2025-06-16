@@ -8,7 +8,7 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Map;
-	
+
 import org.apache.commons.lang3.StringUtils;
 import org.postgresql.jdbc.PgArray;
 
@@ -173,7 +173,14 @@ public class TypeAdapters {
 				return null;
 			}
 
-			String value = cleanNumber(in.nextString());
+			String value = in.nextString();
+
+			try {
+				return StringUtils.isBlank(value) ? null : Double.valueOf(value);
+			} catch (Exception e) {
+				value = cleanNumber(value);
+			}
+
 			return StringUtils.isBlank(value) ? null : Double.valueOf(value);
 		}
 	}
@@ -192,7 +199,14 @@ public class TypeAdapters {
 				return null;
 			}
 
-			String value = cleanNumber(in.nextString());
+			String value = in.nextString();
+
+			try {
+				return StringUtils.isBlank(value) ? null : Long.valueOf(value);
+			} catch (Exception e) {
+				value = cleanNumber(value);
+			}
+
 			return StringUtils.isBlank(value) ? null : Long.valueOf(value);
 		}
 	}
@@ -206,12 +220,18 @@ public class TypeAdapters {
 
 		@Override
 		public Float read(JsonReader in) throws IOException {
-			if (in.peek().equals(JsonToken.NULL)) {
+			if (in.peek() == JsonToken.NULL) {
 				in.nextNull();
 				return null;
 			}
 
-			String value = cleanNumber(in.nextString());
+			String value = in.nextString();
+			try {
+				return StringUtils.isBlank(value) ? null : Float.valueOf(value);
+			} catch (NumberFormatException e) {
+				value = cleanNumber(value);
+			}
+
 			return StringUtils.isBlank(value) ? null : Float.valueOf(value);
 		}
 	}
@@ -253,13 +273,20 @@ public class TypeAdapters {
 
 		@Override
 		public Integer read(JsonReader in) throws IOException {
-			if (in.peek().equals(JsonToken.NULL)) {
+			if (in.peek() == JsonToken.NULL) {
 				in.nextNull();
 				return null;
 			}
 
-			String value = cleanNumber(in.nextString());
-			return value == null ? null : Integer.valueOf(value);
+			String value = in.nextString();
+
+			try {
+				return StringUtils.isBlank(value) ? null : Integer.valueOf(value);
+			} catch (NumberFormatException e) {
+				value = cleanNumber(value);
+			}
+
+			return StringUtils.isBlank(value) ? null : Integer.valueOf(value);
 		}
 	}
 
