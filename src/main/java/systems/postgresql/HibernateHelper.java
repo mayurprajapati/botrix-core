@@ -122,6 +122,11 @@ public class HibernateHelper implements AutoCloseable {
 		return createNativeQuery(query, klass).list();
 	}
 
+	@Synchronized("session")
+	public long count(String query) {
+		return ((Number) session.createNativeQuery(query).getSingleResult()).longValue();
+	}
+
 	public <T> List<T> readAsListOfPojo(String query, Class<T> klass) {
 		return readAsListOfMap(query).stream().map(el -> GsonUtils.fromObjectToPojo(el, klass)).toList();
 	}
