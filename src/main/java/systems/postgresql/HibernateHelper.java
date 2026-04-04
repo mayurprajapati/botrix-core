@@ -116,24 +116,27 @@ public class HibernateHelper implements AutoCloseable {
 	public <T> T withTransactionReturn(java.util.function.Supplier<T> code) {
 		Transaction t = null;
 		boolean existingTransaction = session.getTransaction() != null && session.getTransaction().isActive();
+		T result = null;
 		try {
 			if (!existingTransaction)
 				t = session.beginTransaction();
 
-			T result = code.get();
+			result = code.get();
 
 			if (!existingTransaction)
 				t.commit();
 			session.flush();
 			session.clear();
-			return result;
 		} catch (Throwable e) {
 			if (!existingTransaction && t != null)
 				t.rollbackSilent();
-			if (!e.getMessage().contains("no transaction is in progress"))
+			
+			String msg = e.getMessage();
+			if (msg == null || !msg.contains("no transaction is in progress")) {
 				throw new RuntimeException(e);
-			return null;
+			}
 		}
+		return result;
 	}
 
 	@Synchronized("session")
