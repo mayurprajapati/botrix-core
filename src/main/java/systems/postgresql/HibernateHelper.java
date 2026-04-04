@@ -113,18 +113,42 @@ public class HibernateHelper implements AutoCloseable {
 	}
 
 	@Synchronized("session")
+	public <T> T withTransactionReturn(java.util.function.Supplier<T> code) {
+		Transaction t = null;
+		boolean existingTransaction = session.getTransaction() != null && session.getTransaction().isActive();
+		try {
+			if (!existingTransaction)
+				t = session.beginTransaction();
+
+			T result = code.get();
+
+			if (!existingTransaction)
+				t.commit();
+			session.flush();
+			session.clear();
+			return result;
+		} catch (Throwable e) {
+			if (!existingTransaction && t != null)
+				t.rollbackSilent();
+			if (!e.getMessage().contains("no transaction is in progress"))
+				throw new RuntimeException(e);
+			return null;
+		}
+	}
+
+	@Synchronized("session")
 	public <T> Query<T> createNativeQuery(String query, Class<T> klass) {
 		return session.createNativeQuery(query, klass);
 	}
 
 	@Synchronized("session")
 	public <T> List<T> list(String query, Class<T> klass) {
-		return createNativeQuery(query, klass).list();
+		return withTransactionReturn(() -> createNativeQuery(query, klass).list());
 	}
 
 	@Synchronized("session")
 	public long count(String query) {
-		return ((Number) session.createNativeQuery(query).getSingleResult()).longValue();
+		return withTransactionReturn(() -> ((Number) session.createNativeQuery(query).getSingleResult()).longValue());
 	}
 
 	public <T> List<T> readAsListOfPojo(String query, Class<T> klass) {
@@ -133,31 +157,32 @@ public class HibernateHelper implements AutoCloseable {
 
 	@Synchronized("session")
 	public List<Map<String, Object>> readAsListOfMap(String query) {
-		final List<Map<String, Object>> result = new ArrayList<>();
-		LOG.info("Fetching {}", query.replace("\n", " "));
+		return withTransactionReturn(() -> {
+			final List<Map<String, Object>> result = new ArrayList<>();
+			LOG.info("Fetching {}", query.replace("\n", " "));
 
-		session.doWork((connection) -> {
-			try (Statement stmt = connection.createStatement()) {
-				ResultSet rs = stmt.executeQuery(query);
-				ResultSetMetaData metaData = rs.getMetaData();
-				int columnCount = metaData.getColumnCount();
-				String[] columnNames = new String[columnCount];
-				for (int i = 1; i <= columnCount; i++) {
-					columnNames[i - 1] = metaData.getColumnLabel(i);
-				}
-				while (rs.next()) {
-					Map<String, Object> row = new LinkedHashMap<>();
-					for (int i = 0; i < columnCount; i++) {
-						row.put(columnNames[i], rs.getObject(i + 1));
+			session.doWork((connection) -> {
+				try (Statement stmt = connection.createStatement()) {
+					ResultSet rs = stmt.executeQuery(query);
+					ResultSetMetaData metaData = rs.getMetaData();
+					int columnCount = metaData.getColumnCount();
+					String[] columnNames = new String[columnCount];
+					for (int i = 1; i <= columnCount; i++) {
+						columnNames[i - 1] = metaData.getColumnLabel(i);
 					}
-					result.add(row);
+					while (rs.next()) {
+						Map<String, Object> row = new LinkedHashMap<>();
+						for (int i = 0; i < columnCount; i++) {
+							row.put(columnNames[i], rs.getObject(i + 1));
+						}
+						result.add(row);
+					}
 				}
-			}
+			});
+
+			LOG.info("Fetched {} records", result.size());
+			return result;
 		});
-
-		LOG.info("Fetched {} records", result.size());
-
-		return result;
 	}
 
 	@Override
