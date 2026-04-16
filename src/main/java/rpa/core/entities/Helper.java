@@ -289,6 +289,24 @@ public class Helper {
 		clipboard.setContents(selection, selection);
 	}
 
+	public static String getSHA256Hash(String data) {
+		try {
+			java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");
+			byte[] hash = md.digest(data.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+			StringBuilder hexString = new StringBuilder(2 * hash.length);
+			for (byte b : hash) {
+				String hex = Integer.toHexString(0xff & b);
+				if (hex.length() == 1) {
+					hexString.append('0');
+				}
+				hexString.append(hex);
+			}
+			return hexString.toString();
+		} catch (Exception e) {
+			throw new RuntimeException("Error calculating hash", e);
+		}
+	}
+
 	public static String getTextFromClipboard() throws HeadlessException, UnsupportedFlavorException, IOException {
 		return (String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor);
 	}

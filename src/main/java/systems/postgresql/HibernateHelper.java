@@ -196,6 +196,9 @@ public class HibernateHelper implements AutoCloseable {
 
 	@Synchronized("session")
 	public void save(Object object) {
+		if (object instanceof DataHashUpdater) {
+			((DataHashUpdater) object).updateDataHash();
+		}
 		withTransaction((t) -> {
 			session.saveOrUpdate(object);
 		});
@@ -203,6 +206,9 @@ public class HibernateHelper implements AutoCloseable {
 
 	@Synchronized("session")
 	public void update(Object object) {
+		if (object instanceof DataHashUpdater) {
+			((DataHashUpdater) object).updateDataHash();
+		}
 		withTransaction((t) -> {
 			session.merge(object);
 		});
@@ -220,6 +226,9 @@ public class HibernateHelper implements AutoCloseable {
 				int c = 0;
 
 				for (T obj : list) {
+					if (obj instanceof DataHashUpdater) {
+						((DataHashUpdater) obj).updateDataHash();
+					}
 					session.merge(obj);
 
 					if (c++ % 450 == 0) {
@@ -246,6 +255,9 @@ public class HibernateHelper implements AutoCloseable {
 	}
 
 	public void merge(Object obj) {
+		if (obj instanceof DataHashUpdater) {
+			((DataHashUpdater) obj).updateDataHash();
+		}
 		withTransaction((t) -> {
 			session.merge(obj);
 		});
