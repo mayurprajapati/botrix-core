@@ -37,12 +37,13 @@ public class HibernateHelper implements AutoCloseable {
 	public SessionFactory factory = null;
 	public Session session = null;
 
-//	static {
-//		StandardServiceRegistry ssr = new StandardServiceRegistryBuilder().configure("hibernate.cfg.xml").build();
-//		Metadata meta = new MetadataSources(ssr).getMetadataBuilder().build();
-//
-//		factories = meta.getSessionFactoryBuilder().build();
-//	}
+	// static {
+	// StandardServiceRegistry ssr = new
+	// StandardServiceRegistryBuilder().configure("hibernate.cfg.xml").build();
+	// Metadata meta = new MetadataSources(ssr).getMetadataBuilder().build();
+	//
+	// factories = meta.getSessionFactoryBuilder().build();
+	// }
 
 	public HibernateHelper(Configuration configuration) {
 		if (!factories.containsKey(configuration)) {
@@ -55,34 +56,34 @@ public class HibernateHelper implements AutoCloseable {
 		}
 		factory = factories.get(configuration);
 		session = factories.get(configuration).openSession();
-//		Connection c = ((SessionImpl) session).connection();
-//		PGConnection pg = (PGConnection) c;
-//
-//		while (true) {
-//			try {
-//				PGNotification[] n = pg.getNotifications();
-//				if (n != null && n.length > 0) {
-//					System.out.println();
-//				}
-//			} catch (Exception e) {
-//				e.printStackTrace();
-//			}
-//			WaitUtils.sleep(Duration.ofSeconds(1));
-//
-//		}
+		// Connection c = ((SessionImpl) session).connection();
+		// PGConnection pg = (PGConnection) c;
+		//
+		// while (true) {
+		// try {
+		// PGNotification[] n = pg.getNotifications();
+		// if (n != null && n.length > 0) {
+		// System.out.println();
+		// }
+		// } catch (Exception e) {
+		// e.printStackTrace();
+		// }
+		// WaitUtils.sleep(Duration.ofSeconds(1));
+		//
+		// }
 	}
 
-//	public static void main(String[] args) {
-//		try (Helper h = new Helper()) {
-//
-//		}
-//	}
+	// public static void main(String[] args) {
+	// try (Helper h = new Helper()) {
+	//
+	// }
+	// }
 
 	@Synchronized("session")
 	public <T> CriteriaQuery<T> createCriteriaQuery(Class<T> klass) {
 		return session.getCriteriaBuilder().createQuery(klass);
-//		return session.createQuery(q);
-//		return session.createNativeQuery(query, _StockQuoteIndice.class).list();
+		// return session.createQuery(q);
+		// return session.createNativeQuery(query, _StockQuoteIndice.class).list();
 	}
 
 	@Synchronized("session")
@@ -130,7 +131,7 @@ public class HibernateHelper implements AutoCloseable {
 		} catch (Throwable e) {
 			if (!existingTransaction && t != null)
 				t.rollbackSilent();
-			
+
 			String msg = e.getMessage();
 			if (msg == null || !msg.contains("no transaction is in progress")) {
 				throw new RuntimeException(e);
@@ -249,7 +250,8 @@ public class HibernateHelper implements AutoCloseable {
 
 	/**
 	 * Faster alternative to mergeAll for pure INSERT scenarios (e.g. migration).
-	 * Uses session.save() which skips the SELECT round-trip Hibernate does in merge().
+	 * Uses session.save() which skips the SELECT round-trip Hibernate does in
+	 * merge().
 	 * Only use when you are certain the rows do not already exist in the table.
 	 */
 	@Synchronized("session")
@@ -272,6 +274,7 @@ public class HibernateHelper implements AutoCloseable {
 					if (c++ % 450 == 0) {
 						session.flush();
 						session.clear();
+						System.out.println("Committed " + c + " records");
 					}
 				}
 
