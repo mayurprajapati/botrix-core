@@ -247,6 +247,44 @@ public class HibernateHelper implements AutoCloseable {
 		}
 	}
 
+	/**
+	 * Faster alternative to mergeAll for pure INSERT scenarios (e.g. migration).
+	 * Uses session.save() which skips the SELECT round-trip Hibernate does in merge().
+	 * Only use when you are certain the rows do not already exist in the table.
+	 */
+	@Synchronized("session")
+	public <T> void saveAll(List<T> list) {
+		try {
+			if (list == null || list.isEmpty())
+				return;
+
+			LOG.info("Inserting {} values", list.size());
+
+			withTransaction((t) -> {
+				int c = 0;
+
+				for (T obj : list) {
+					if (obj instanceof DataHashUpdater) {
+						((DataHashUpdater) obj).updateDataHash();
+					}
+					session.save(obj);
+
+					if (c++ % 450 == 0) {
+						session.flush();
+						session.clear();
+					}
+				}
+
+				session.flush();
+				session.clear();
+			});
+
+			LOG.info("Inserted {} values", list.size());
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+
 	@Synchronized("session")
 	public void remove(Object object) {
 		withTransaction((t) -> {
