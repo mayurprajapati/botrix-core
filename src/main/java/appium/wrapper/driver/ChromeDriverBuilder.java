@@ -52,10 +52,12 @@ public class ChromeDriverBuilder {
 		options.addArguments("--disable-infobars");
 		options.addArguments("--safebrowsing-disable-download-protection");
 		options.addArguments("--safebrowsing-disable-extension-blacklist");
+		options.addArguments("--enable-unsafe-swiftshader");
 		options.setExperimentalOption("excludeSwitches", Collections.singletonList("enable-automation"));
 
 		if (driverBuilderOptions.isHeadless()) {
-			options.addArguments("--headless").addArguments("--disable-gpu");
+			options.addArguments("--headless=new").addArguments("--disable-gpu");
+			options.addArguments("--disable-dev-shm-usage");
 		}
 
 		if (driverBuilderOptions.isIncognito()) {
