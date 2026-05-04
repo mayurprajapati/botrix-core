@@ -68,10 +68,68 @@ public class PlaywrightBrowser implements AutoCloseable {
 	}
 
 	/**
+	 * Get the underlying BrowserContext.
+	 */
+	public BrowserContext getContext() {
+		return context;
+	}
+
+	/**
 	 * Get all cookies from the browser context.
 	 */
 	public List<com.microsoft.playwright.options.Cookie> getCookies() {
 		return context.cookies();
+	}
+
+	/**
+	 * Add cookies to the browser context from RestAssured Cookies.
+	 * Infers the domain from the current page URL if cookies lack one.
+	 */
+	public void addCookies(Cookies restAssuredCookies) {
+		// Try to infer domain from the current page URL
+		String currentUrl = page.url();
+		String inferredDomain = null;
+		if (currentUrl != null && !currentUrl.isBlank() && !currentUrl.equals("about:blank")) {
+			try {
+				inferredDomain = new java.net.URI(currentUrl).getHost();
+			} catch (Exception ignored) {
+			}
+		}
+		addCookies(restAssuredCookies, inferredDomain);
+	}
+
+	/**
+	 * Add cookies to the browser context from RestAssured Cookies,
+	 * using the given defaultDomain for any cookie that lacks one.
+	 */
+	public void addCookies(Cookies restAssuredCookies, String defaultDomain) {
+		List<com.microsoft.playwright.options.Cookie> pwCookies = new ArrayList<>();
+		for (Cookie c : restAssuredCookies) {
+			String domain = c.getDomain();
+			if (domain == null || domain.isBlank()) {
+				domain = defaultDomain;
+			}
+			if (domain == null || domain.isBlank()) {
+				LOGGER.warn("Skipping cookie '{}' — no domain available", c.getName());
+				continue;
+			}
+			// Playwright expects domain to start with a dot for subdomains
+			if (!domain.startsWith(".")) {
+				domain = "." + domain;
+			}
+
+			com.microsoft.playwright.options.Cookie pwCookie = new com.microsoft.playwright.options.Cookie(c.getName(), c.getValue());
+			pwCookie.setDomain(domain);
+			pwCookie.setPath(c.getPath() != null ? c.getPath() : "/");
+			pwCookie.setSecure(c.isSecured());
+			pwCookie.setHttpOnly(c.isHttpOnly());
+			if (c.getExpiryDate() != null) {
+				pwCookie.setExpires(c.getExpiryDate().getTime() / 1000.0);
+			}
+			pwCookies.add(pwCookie);
+		}
+		context.addCookies(pwCookies);
+		LOGGER.info("Added {} cookies to browser context", pwCookies.size());
 	}
 
 	/**
@@ -101,10 +159,12 @@ public class PlaywrightBrowser implements AutoCloseable {
 		} catch (Exception e) {
 			LOGGER.warn("Failed to close context: {}", e.getMessage());
 		}
-		try {
-			browser.close();
-		} catch (Exception e) {
-			LOGGER.warn("Failed to close browser: {}", e.getMessage());
+		if (browser != null) {
+			try {
+				browser.close();
+			} catch (Exception e) {
+				LOGGER.warn("Failed to close browser: {}", e.getMessage());
+			}
 		}
 		try {
 			playwright.close();
@@ -121,6 +181,7 @@ public class PlaywrightBrowser implements AutoCloseable {
 		private boolean noSandbox = false;
 		private String userAgent = null;
 		private Double slowMo = null;
+		private String userDataDir = null;
 		private final List<String> extraArgs = new ArrayList<>();
 
 		Builder() {
@@ -151,6 +212,15 @@ public class PlaywrightBrowser implements AutoCloseable {
 			return this;
 		}
 
+		/**
+		 * Set a user data directory for a persistent browser context.
+		 * Cookies, localStorage, and session data will be saved/restored from this path.
+		 */
+		public Builder userDataDir(String userDataDir) {
+			this.userDataDir = userDataDir;
+			return this;
+		}
+
 		public PlaywrightBrowser launch() {
 			Playwright playwright = Playwright.create();
 
@@ -162,6 +232,31 @@ public class PlaywrightBrowser implements AutoCloseable {
 			args.add("--disable-infobars");
 			args.addAll(extraArgs);
 
+			if (userDataDir != null) {
+				// Persistent context mode — cookies & session persist on disk
+				var persistentOptions = new com.microsoft.playwright.BrowserType.LaunchPersistentContextOptions();
+				persistentOptions.setHeadless(headless);
+				persistentOptions.setArgs(args);
+				if (slowMo != null) {
+					persistentOptions.setSlowMo(slowMo);
+				}
+				if (userAgent != null) {
+					persistentOptions.setUserAgent(userAgent);
+				}
+				// Required for --start-maximized to work — no fixed viewport
+				if (args.contains("--start-maximized")) {
+					persistentOptions.setViewportSize(null);
+				}
+
+				java.nio.file.Path dataDir = java.nio.file.Paths.get(userDataDir);
+				BrowserContext context = playwright.chromium().launchPersistentContext(dataDir, persistentOptions);
+				com.microsoft.playwright.Page page = context.pages().isEmpty() ? context.newPage() : context.pages().get(0);
+
+				LOGGER.info("Launched persistent context at {}", userDataDir);
+				return new PlaywrightBrowser(playwright, null, context, page);
+			}
+
+			// Standard (ephemeral) mode
 			LaunchOptions launchOptions = new LaunchOptions();
 			launchOptions.setHeadless(headless);
 			launchOptions.setArgs(args);
