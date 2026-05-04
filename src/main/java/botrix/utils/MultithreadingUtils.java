@@ -18,12 +18,22 @@ public class MultithreadingUtils {
 
 	public static <T> List<T> resolve(int threadCount, List<Callable<T>> tasks)
 			throws InterruptedException, ExecutionException {
-		ExecutorService executor = Executors.newFixedThreadPool(threadCount);
-		List<Future<T>> futures = new ArrayList<>();
+		ExecutorService executor = Executors.newFixedThreadPool(threadCount, r -> {
+			Thread t = new Thread(r);
+			t.setDaemon(true);
+			return t;
+		});
 
-		futures = executor.invokeAll(tasks);
+		List<Future<T>> futures = executor.invokeAll(tasks);
 
 		executor.shutdownNow();
+		try {
+			if (!executor.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS)) {
+				System.err.println("Executor did not terminate in time");
+			}
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+		}
 
 		List<T> responses = new ArrayList<>();
 		for (Future<T> future : futures) {
