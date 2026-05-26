@@ -10,6 +10,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.microsoft.playwright.Frame;
 import com.microsoft.playwright.Request;
+import com.microsoft.playwright.Response;
 import com.microsoft.playwright.options.HttpHeader;
 import com.microsoft.playwright.options.Sizes;
 import com.microsoft.playwright.options.Timing;
@@ -138,6 +139,12 @@ public class RequestWrapper implements Request {
 	public String url() {
 
 		return r.url();
+	}
+
+	@Override
+	public Response existingResponse() {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'existingResponse'");
 	}
 
 }

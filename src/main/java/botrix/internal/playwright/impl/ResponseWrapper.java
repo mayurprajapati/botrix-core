@@ -133,4 +133,10 @@ public class ResponseWrapper implements Response {
 	public GsonPath gsonPath() {
 		return new GsonPath(text());
 	}
+
+	@Override
+	public String httpVersion() {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'httpVersion'");
+	}
 }

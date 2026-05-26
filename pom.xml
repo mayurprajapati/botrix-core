@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>botrix</groupId>
 	<artifactId>core</artifactId>
-	<version>0.0.40</version>
+	<version>0.0.42</version>
 	<name>Botrix Automation Framework</name>
 
 	<distributionManagement>
@@ -188,7 +188,7 @@
 		<dependency>
 			<groupId>com.microsoft.playwright</groupId>
 			<artifactId>playwright</artifactId>
-			<version>1.41.0</version>
+			<version>1.60.0</version>
 		</dependency>
 		<dependency>
 			<groupId>io.rest-assured</groupId>
