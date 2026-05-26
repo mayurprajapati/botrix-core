@@ -10,7 +10,9 @@ import org.slf4j.Logger;
 import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.Browser.NewContextOptions;
 import com.microsoft.playwright.BrowserContext;
+import com.microsoft.playwright.BrowserType;
 import com.microsoft.playwright.BrowserType.LaunchOptions;
+import com.microsoft.playwright.BrowserType.LaunchPersistentContextOptions;
 import com.microsoft.playwright.Page.NavigateOptions;
 import com.microsoft.playwright.Playwright;
 import com.microsoft.playwright.PlaywrightException;
@@ -21,14 +23,20 @@ import io.restassured.http.Cookie;
 import io.restassured.http.Cookies;
 
 /**
- * A lightweight, AutoCloseable wrapper around Playwright's Chromium browser.
+ * A lightweight, AutoCloseable wrapper around Playwright's Chromium/Firefox browser.
  * Designed for quick headless sessions like cookie extraction.
  *
  * <p>Usage:
  * <pre>
+ * // Chromium (default, uses --disable-http2 + --disable-features=H2 for NSE)
  * try (var browser = PlaywrightBrowser.chromium().headless(true).noSandbox(true).launch()) {
  *     browser.navigate("https://example.com");
  *     var cookies = browser.getCookiesForRestAssured();
+ * }
+ *
+ * // Firefox (alternative network stack, avoids Chromium-specific HTTP/2 bugs)
+ * try (var browser = PlaywrightBrowser.firefox().headless(true).launch()) {
+ *     browser.navigate("https://www.nseindia.com");
  * }
  * </pre>
  */
@@ -52,7 +60,16 @@ public class PlaywrightBrowser implements AutoCloseable {
 	 * Start building a Chromium browser session.
 	 */
 	public static Builder chromium() {
-		return new Builder();
+		return new Builder(BrowserEngine.CHROMIUM);
+	}
+
+	/**
+	 * Start building a Firefox browser session.
+	 * Firefox uses a different network stack (Necko) that avoids
+	 * Chromium-specific HTTP/2 protocol errors with servers like NSE India.
+	 */
+	public static Builder firefox() {
+		return new Builder(BrowserEngine.FIREFOX);
 	}
 
 	/**
@@ -197,9 +214,17 @@ public class PlaywrightBrowser implements AutoCloseable {
 	}
 
 	/**
+	 * Supported browser engines.
+	 */
+	public enum BrowserEngine {
+		CHROMIUM, FIREFOX
+	}
+
+	/**
 	 * Builder for configuring and launching a PlaywrightBrowser.
 	 */
 	public static class Builder {
+		private final BrowserEngine browserEngine;
 		private boolean headless = true;
 		private boolean noSandbox = false;
 		private boolean ignoreHTTPSErrors = true;
@@ -208,7 +233,8 @@ public class PlaywrightBrowser implements AutoCloseable {
 		private String userDataDir = null;
 		private final List<String> extraArgs = new ArrayList<>();
 
-		Builder() {
+		Builder(BrowserEngine browserEngine) {
+			this.browserEngine = browserEngine;
 		}
 
 		public Builder headless(boolean headless) {
@@ -258,20 +284,27 @@ public class PlaywrightBrowser implements AutoCloseable {
 		public PlaywrightBrowser launch() {
 			Playwright playwright = Playwright.create();
 
+			BrowserType browserType = browserEngine == BrowserEngine.FIREFOX
+					? playwright.firefox()
+					: playwright.chromium();
+
 			List<String> args = new ArrayList<>();
 			if (noSandbox) {
 				args.add("--no-sandbox");
 			}
-			args.add("--disable-blink-features=AutomationControlled");
-			args.add("--disable-infobars");
-			// Disable HTTP/2 to avoid ERR_HTTP2_PROTOCOL_ERROR with servers
-			// that have non-compliant HTTP/2 implementations (e.g. NSE India)
-			args.add("--disable-features=H2");
+			if (browserEngine == BrowserEngine.CHROMIUM) {
+				args.add("--disable-blink-features=AutomationControlled");
+				args.add("--disable-infobars");
+				// Disable HTTP/2 to avoid ERR_HTTP2_PROTOCOL_ERROR (NSE India, etc.)
+				// --disable-http2 is deprecated but may still work; --disable-features=H2 as backup
+				args.add("--disable-http2");
+				args.add("--disable-features=H2");
+			}
 			args.addAll(extraArgs);
 
 			if (userDataDir != null) {
 				// Persistent context mode — cookies & session persist on disk
-				var persistentOptions = new com.microsoft.playwright.BrowserType.LaunchPersistentContextOptions();
+				var persistentOptions = new LaunchPersistentContextOptions();
 				persistentOptions.setHeadless(headless);
 				persistentOptions.setArgs(args);
 				persistentOptions.setIgnoreHTTPSErrors(ignoreHTTPSErrors);
@@ -287,10 +320,10 @@ public class PlaywrightBrowser implements AutoCloseable {
 				}
 
 				java.nio.file.Path dataDir = java.nio.file.Paths.get(userDataDir);
-				BrowserContext context = playwright.chromium().launchPersistentContext(dataDir, persistentOptions);
+				BrowserContext context = browserType.launchPersistentContext(dataDir, persistentOptions);
 				com.microsoft.playwright.Page page = context.pages().isEmpty() ? context.newPage() : context.pages().get(0);
 
-				LOGGER.info("Launched persistent context at {}", userDataDir);
+				LOGGER.info("Launched {} persistent context at {}", browserEngine, userDataDir);
 				return new PlaywrightBrowser(playwright, null, context, page);
 			}
 
@@ -302,7 +335,7 @@ public class PlaywrightBrowser implements AutoCloseable {
 				launchOptions.setSlowMo(slowMo);
 			}
 
-			Browser browser = playwright.chromium().launch(launchOptions);
+			Browser browser = browserType.launch(launchOptions);
 
 			NewContextOptions contextOptions = new NewContextOptions();
 			contextOptions.setIgnoreHTTPSErrors(ignoreHTTPSErrors);
@@ -313,6 +346,7 @@ public class PlaywrightBrowser implements AutoCloseable {
 			BrowserContext context = browser.newContext(contextOptions);
 			com.microsoft.playwright.Page page = context.newPage();
 
+			LOGGER.info("Launched {} browser (headless={})", browserEngine, headless);
 			return new PlaywrightBrowser(playwright, browser, context, page);
 		}
 	}
