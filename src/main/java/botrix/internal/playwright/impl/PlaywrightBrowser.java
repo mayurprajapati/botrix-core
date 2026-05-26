@@ -179,6 +179,7 @@ public class PlaywrightBrowser implements AutoCloseable {
 	public static class Builder {
 		private boolean headless = true;
 		private boolean noSandbox = false;
+		private boolean ignoreHTTPSErrors = true;
 		private String userAgent = null;
 		private Double slowMo = null;
 		private String userDataDir = null;
@@ -204,6 +205,16 @@ public class PlaywrightBrowser implements AutoCloseable {
 
 		public Builder slowMo(double slowMo) {
 			this.slowMo = slowMo;
+			return this;
+		}
+
+		/**
+		 * Ignore HTTPS/HTTP2 protocol errors (default: true).
+		 * Essential for sites like NSE India that have HTTP/2 quirks
+		 * that trigger ERR_HTTP2_PROTOCOL_ERROR in newer Chromium.
+		 */
+		public Builder ignoreHTTPSErrors(boolean ignoreHTTPSErrors) {
+			this.ignoreHTTPSErrors = ignoreHTTPSErrors;
 			return this;
 		}
 
@@ -237,6 +248,7 @@ public class PlaywrightBrowser implements AutoCloseable {
 				var persistentOptions = new com.microsoft.playwright.BrowserType.LaunchPersistentContextOptions();
 				persistentOptions.setHeadless(headless);
 				persistentOptions.setArgs(args);
+				persistentOptions.setIgnoreHTTPSErrors(ignoreHTTPSErrors);
 				if (slowMo != null) {
 					persistentOptions.setSlowMo(slowMo);
 				}
@@ -267,6 +279,7 @@ public class PlaywrightBrowser implements AutoCloseable {
 			Browser browser = playwright.chromium().launch(launchOptions);
 
 			NewContextOptions contextOptions = new NewContextOptions();
+			contextOptions.setIgnoreHTTPSErrors(ignoreHTTPSErrors);
 			if (userAgent != null) {
 				contextOptions.setUserAgent(userAgent);
 			}
