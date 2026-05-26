@@ -11,7 +11,10 @@ import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.Browser.NewContextOptions;
 import com.microsoft.playwright.BrowserContext;
 import com.microsoft.playwright.BrowserType.LaunchOptions;
+import com.microsoft.playwright.Page.NavigateOptions;
 import com.microsoft.playwright.Playwright;
+import com.microsoft.playwright.PlaywrightException;
+import com.microsoft.playwright.options.WaitUntilState;
 
 import botrix.internal.logging.LoggerFactory;
 import io.restassured.http.Cookie;
@@ -53,10 +56,30 @@ public class PlaywrightBrowser implements AutoCloseable {
 	}
 
 	/**
-	 * Navigate to the given URL (waits for page load).
+	 * Navigate to the given URL.
+	 * <p>
+	 * Uses DOMContentLoaded instead of 'load' to avoid hanging on
+	 * subresource failures (e.g. HTTP/2 protocol errors on third-party CDNs).
+	 * Falls back to a retry with COMMIT wait-strategy if the first attempt fails
+	 * with ERR_HTTP2_PROTOCOL_ERROR (common after Playwright/Chromium upgrades
+	 * against servers with non-compliant HTTP/2 implementations like NSE India).
 	 */
 	public void navigate(String url) {
-		page.navigate(url);
+		try {
+			page.navigate(url, new NavigateOptions().setWaitUntil(WaitUntilState.DOMCONTENTLOADED));
+		} catch (PlaywrightException e) {
+			if (e.getMessage() != null && e.getMessage().contains("ERR_HTTP2_PROTOCOL_ERROR")) {
+				LOGGER.warn("HTTP/2 protocol error navigating to {} — retrying with COMMIT strategy", url);
+				try {
+					page.navigate(url, new NavigateOptions().setWaitUntil(WaitUntilState.COMMIT));
+				} catch (PlaywrightException retryErr) {
+					LOGGER.error("Retry also failed for {}: {}", url, retryErr.getMessage());
+					throw retryErr;
+				}
+			} else {
+				throw e;
+			}
+		}
 		LOGGER.info("Navigated to {}", url);
 	}
 
@@ -241,6 +264,9 @@ public class PlaywrightBrowser implements AutoCloseable {
 			}
 			args.add("--disable-blink-features=AutomationControlled");
 			args.add("--disable-infobars");
+			// Disable HTTP/2 to avoid ERR_HTTP2_PROTOCOL_ERROR with servers
+			// that have non-compliant HTTP/2 implementations (e.g. NSE India)
+			args.add("--disable-features=H2");
 			args.addAll(extraArgs);
 
 			if (userDataDir != null) {
