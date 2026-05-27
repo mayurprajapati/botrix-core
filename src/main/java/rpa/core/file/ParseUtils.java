@@ -185,7 +185,7 @@ public class ParseUtils {
 	public static String formatDate(String toFormat, Date date, String timezone) {
 		try {
 			if (date != null) {
-				SimpleDateFormat toSdf = new SimpleDateFormat(toFormat);
+				SimpleDateFormat toSdf = new SimpleDateFormat(toFormat, Locale.ENGLISH);
 				if (StringUtils.isNotBlank(timezone)) {
 					toSdf.setTimeZone(TimeZone.getTimeZone(timezone));
 				}
@@ -277,7 +277,7 @@ public class ParseUtils {
 	public static String formatDate(String fromFormat, String toFormat, String date, String timeZone) throws Exception {
 		if (StringUtils.isNotBlank(date)) {
 			SimpleDateFormat fromSdf = new SimpleDateFormat(fromFormat, Locale.ENGLISH);
-			SimpleDateFormat toSdf = new SimpleDateFormat(toFormat);
+			SimpleDateFormat toSdf = new SimpleDateFormat(toFormat, Locale.ENGLISH);
 			if (StringUtils.isNotBlank(timeZone)) {
 				fromSdf.setTimeZone(TimeZone.getTimeZone(timeZone));
 				toSdf.setTimeZone(TimeZone.getTimeZone(timeZone));
@@ -622,7 +622,7 @@ public class ParseUtils {
 	}
 
 	public static Date date(String date, String dateFormat, String timezone) throws ParseException {
-		SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
+		SimpleDateFormat sdf = new SimpleDateFormat(dateFormat, Locale.ENGLISH);
 		if (StringUtils.isNotBlank(timezone)) {
 			sdf.setTimeZone(TimeZone.getTimeZone(timezone));
 		}
@@ -881,7 +881,7 @@ public class ParseUtils {
 	}
 
 	public static String addDaysToDate(Date fromDate, int noOfDaysToAdd, String outputDateformat, String timezone) {
-		SimpleDateFormat dtf = new SimpleDateFormat(outputDateformat);
+		SimpleDateFormat dtf = new SimpleDateFormat(outputDateformat, Locale.ENGLISH);
 
 		if (StringUtils.isNotBlank(timezone)) {
 			dtf.setTimeZone(TimeZone.getTimeZone(timezone));
@@ -905,7 +905,7 @@ public class ParseUtils {
 	 */
 	public static String compareDate(String dateFormat, String dateStr1, String dateStr2) throws Exception {
 		try {
-			SimpleDateFormat fromSdf = new SimpleDateFormat(dateFormat);
+			SimpleDateFormat fromSdf = new SimpleDateFormat(dateFormat, Locale.ENGLISH);
 			Date date1 = fromSdf.parse(dateStr1);
 			Date date2 = fromSdf.parse(dateStr2);
 			if (date1.compareTo(date2) > 0) {
@@ -995,7 +995,7 @@ public class ParseUtils {
 			aCalendar.add(Calendar.MONTH, -1);
 			aCalendar.set(Calendar.DAY_OF_MONTH, aCalendar.getActualMaximum(Calendar.DAY_OF_MONTH));
 
-			SimpleDateFormat toSdf = new SimpleDateFormat(format);
+			SimpleDateFormat toSdf = new SimpleDateFormat(format, Locale.ENGLISH);
 			return toSdf.format(aCalendar.getTime());
 		} catch (Exception e) {
 			LOGGER.error("Error in getting last date of previous month", e);
@@ -1013,7 +1013,7 @@ public class ParseUtils {
 	 */
 	public static String getLastDateByMonth(String month, String format) throws Exception {
 		try {
-			Date date = new SimpleDateFormat("MMMM").parse(month);
+			Date date = new SimpleDateFormat("MMMM", Locale.ENGLISH).parse(month);
 			Calendar aCalendar = Calendar.getInstance();
 			aCalendar.setTime(date);
 			aCalendar.set(Calendar.YEAR, Calendar.getInstance().get(Calendar.YEAR));
@@ -1156,7 +1156,7 @@ public class ParseUtils {
 			double min = (hour - (long) hour) * 60;
 			double sec = (min - (long) min) * 60;
 
-			SimpleDateFormat myFormat = new SimpleDateFormat("dd MM yyyy");
+			SimpleDateFormat myFormat = new SimpleDateFormat("dd MM yyyy", Locale.ENGLISH);
 
 			if (StringUtils.isNotBlank(timezone)) {
 				myFormat.setTimeZone(TimeZone.getTimeZone("UTC"));

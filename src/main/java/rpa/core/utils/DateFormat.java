@@ -11,6 +11,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
@@ -114,7 +115,7 @@ public enum DateFormat {
 	public boolean isParsable(String date) {
 		try {
 			ParsePosition position = new ParsePosition(0);
-			SimpleDateFormat sdf = new SimpleDateFormat(this.format);
+			SimpleDateFormat sdf = new SimpleDateFormat(this.format, Locale.ENGLISH);
 			sdf.setLenient(false);
 			sdf.parse(date, position);
 
