@@ -171,7 +171,7 @@ public class RestClient {
 			InternetDomainName internetDomainName = InternetDomainName.from(host).topPrivateDomain();
 			String domain = internetDomainName.toString();
 
-//			Map<String, String> existingCookies = new HashMap<>(getCookies(domain));
+			// Map<String, String> existingCookies = new HashMap<>(getCookies(domain));
 			req = (FilterableRequestSpecification) req.cookies(existingCookies);
 
 			Response r = context.next(req, res);
@@ -187,8 +187,8 @@ public class RestClient {
 			existingCookies.clear();
 			existingCookies.putAll(map);
 
-//			existingCookies.putAll(r.detailedCookies());
-//			setCookies(domain, existingCookies);
+			// existingCookies.putAll(r.detailedCookies());
+			// setCookies(domain, existingCookies);
 			return r;
 		});
 	}
@@ -204,13 +204,13 @@ public class RestClient {
 		 */
 		RequestSpecification spec = RestAssured.given(builder.getRequestSpecBuilder().build());
 
-//		if (builder.isManageCookies()) {
-//			var specCasted = (RequestSpecificationImpl) spec;
-//
-//			URI uri = URIUtils.getUri(specCasted.getURI());
-//			Map<String, String> existingCookies = getCookies(uri.getHost());
-//			spec = spec.cookies(existingCookies);
-//		}
+		// if (builder.isManageCookies()) {
+		// var specCasted = (RequestSpecificationImpl) spec;
+		//
+		// URI uri = URIUtils.getUri(specCasted.getURI());
+		// Map<String, String> existingCookies = getCookies(uri.getHost());
+		// spec = spec.cookies(existingCookies);
+		// }
 
 		return spec;
 	}
@@ -256,21 +256,43 @@ public class RestClient {
 			FailablePredicate<Response, Throwable> responseMatcher, int maxRetryCount) throws Throwable {
 		Response r = null;
 		int c = 0;
+		int nullRetryCount = 0;
+		int maxNullRetryCount = 6;
+		long currentNullDelayMs = 1500;
 		Throwable t = null;
 
 		int count = 0;
-		do {
+		while (c < maxRetryCount) {
 			try {
 				r = apiTrigger.apply(count++);
-				if (responseMatcher.test(r))
+				
+				if (r == null) {
+					t = new BishopRuntimeException("Null response");
+					if (nullRetryCount < maxNullRetryCount) {
+						Thread.sleep(currentNullDelayMs);
+						// Increasing by 1500ms each retry (1500, 3000, 4500...)
+						currentNullDelayMs += 1500;
+						nullRetryCount++;
+						continue; // Retry without incrementing the general retry counter 'c'
+					}
+					// Exhausted max null retries
+					break;
+				}
+				
+				if (responseMatcher.test(r)) {
 					return r;
+				}
 
-				Thread.sleep(1000);
-				throw new BishopRuntimeException("Unexpected response");
+				t = new BishopRuntimeException("Unexpected response");
 			} catch (Throwable e) {
 				t = e;
 			}
-		} while ((++c) < maxRetryCount);
+			
+			c++;
+			if (c < maxRetryCount) {
+				Thread.sleep(1000);
+			}
+		}
 
 		throw t;
 	}
