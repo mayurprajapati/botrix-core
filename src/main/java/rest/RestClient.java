@@ -256,45 +256,43 @@ public class RestClient {
 			FailablePredicate<Response, Throwable> responseMatcher, int maxRetryCount) throws Throwable {
 		Response r = null;
 		int c = 0;
-		int nullRetryCount = 0;
-		int maxNullRetryCount = 6;
-		long currentNullDelayMs = 1500;
+		int nullStreakCount = 0;
+		int maxNullStreak = 3;
 		Throwable t = null;
 
-		int count = 0;
 		while (c < maxRetryCount) {
 			try {
-				r = apiTrigger.apply(count++);
-				
+				r = apiTrigger.apply(c);
+
 				if (r == null) {
-					t = new BishopRuntimeException("Null response");
-					if (nullRetryCount < maxNullRetryCount) {
-						Thread.sleep(currentNullDelayMs);
-						// Increasing by 1500ms each retry (1500, 3000, 4500...)
-						currentNullDelayMs += 1500;
-						nullRetryCount++;
-						continue; // Retry without incrementing the general retry counter 'c'
+					nullStreakCount++;
+					t = new BishopRuntimeException("Null response (streak " + nullStreakCount + "/" + maxNullStreak + ")");
+					if (nullStreakCount < maxNullStreak) {
+						c++;
+						Thread.sleep(1500L * nullStreakCount); // 1.5s, 3s, 4.5s backoff
+						continue;
 					}
-					// Exhausted max null retries
-					break;
+					break; // exhausted null streak retries
 				}
-				
+
+				nullStreakCount = 0; // reset null streak on successful non-null response
+
 				if (responseMatcher.test(r)) {
 					return r;
 				}
 
-				t = new BishopRuntimeException("Unexpected response");
+				t = new BishopRuntimeException("Unexpected response: HTTP " + r.statusCode());
 			} catch (Throwable e) {
 				t = e;
 			}
-			
+
 			c++;
 			if (c < maxRetryCount) {
 				Thread.sleep(1000);
 			}
 		}
 
-		throw t;
+		throw t != null ? t : new BishopRuntimeException("Retry exhausted with no response");
 	}
 
 	public static <T> List<T> multithreaded(List<Callable<T>> tasks) throws InterruptedException, ExecutionException {
