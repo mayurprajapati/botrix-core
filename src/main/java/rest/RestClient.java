@@ -328,7 +328,7 @@ public class RestClient {
 	public static class RestClientBuilder {
 		private boolean manageCookies = false;
 		private RequestSpecBuilder requestSpecBuilder;
-		private int errorRetryCount = 1;
+		private int errorRetryCount = 3;
 		private int connectionTimeout = 30_000;
 		private int soTimeout = 30_000;
 
