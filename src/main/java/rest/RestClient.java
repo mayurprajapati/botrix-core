@@ -19,7 +19,6 @@ import java.util.function.Function;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.InflaterInputStream;
 
-import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.function.FailablePredicate;
 import org.apache.http.params.CoreConnectionPNames;
 import org.brotli.dec.BrotliInputStream;
@@ -138,22 +137,33 @@ public class RestClient {
 
 	private void retryFilter(RequestSpecBuilder specBuilder) {
 		specBuilder.addFilter((req, res, context) -> {
-			Response r = null;
+			Throwable lastError = null;
 			for (int i = 0; i < builder.errorRetryCount; i++) {
 				try {
-					r = context.next(req, res);
-					return Validate.notNull(r, "Not able to reach the server");
+					Response r = context.next(req, res);
+					if (r == null) {
+						throw new BishopRuntimeException("Not able to reach the server — response is null");
+					}
+					return r;
 				} catch (Throwable e) {
+					lastError = e;
 					if (i == builder.errorRetryCount - 1) {
-						throw e;
+						break;
 					}
 
-					LOGGER.debug("Retrying request again", e);
-					Duration.ofMillis(500).sleep();
+					// Exponential backoff: 2s, 4s, 8s, 16s, 32s...
+					long delayMs = 2000L * (1L << i);
+					LOGGER.warn("Request failed (attempt {}/{}), retrying in {}s: {}",
+							i + 1, builder.errorRetryCount, delayMs / 1000,
+							e.getMessage());
+					Duration.ofMillis(delayMs).sleep();
 				}
 			}
 
-			return r;
+			throw new BishopRuntimeException(
+					"Request failed after " + builder.errorRetryCount + " attempts. Last error: "
+							+ (lastError != null ? lastError.getMessage() : "unknown"),
+					lastError);
 		});
 	}
 
