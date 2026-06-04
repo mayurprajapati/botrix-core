@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.Locale;
 
 import rpa.core.exceptions.BishopRuntimeException;
 import rpa.core.utils.DateFormat;
@@ -37,7 +38,7 @@ public class DateUtils {
 	}
 
 	public static LocalDate localdate(String date, DateFormat format) {
-		return LocalDate.parse(date, DateTimeFormatter.ofPattern(format.getFormat()));
+		return LocalDate.parse(date, DateTimeFormatter.ofPattern(format.getFormat(), Locale.ENGLISH));
 	}
 
 	public static LocalDate localDate(Date date) {
