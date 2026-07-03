@@ -225,6 +225,8 @@ public class HibernateHelper implements AutoCloseable {
 
 			withTransaction((t) -> {
 				int c = 0;
+				int total = list.size();
+				int progressEvery = Math.max(5000, total / 20);
 
 				for (T obj : list) {
 					if (obj instanceof DataHashUpdater) {
@@ -232,9 +234,13 @@ public class HibernateHelper implements AutoCloseable {
 					}
 					session.merge(obj);
 
-					if (c++ % 450 == 0) {
+					c++;
+					if (c % 450 == 0) {
 						session.flush();
 						session.clear();
+					}
+					if (total > 10000 && c % progressEvery == 0) {
+						LOG.info("Merge progress: {}/{} ({}%)", c, total, String.format("%.1f", c * 100.0 / total));
 					}
 				}
 
