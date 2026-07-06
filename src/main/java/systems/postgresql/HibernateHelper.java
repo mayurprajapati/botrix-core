@@ -37,14 +37,6 @@ public class HibernateHelper implements AutoCloseable {
 	public SessionFactory factory = null;
 	public Session session = null;
 
-	// static {
-	// StandardServiceRegistry ssr = new
-	// StandardServiceRegistryBuilder().configure("hibernate.cfg.xml").build();
-	// Metadata meta = new MetadataSources(ssr).getMetadataBuilder().build();
-	//
-	// factories = meta.getSessionFactoryBuilder().build();
-	// }
-
 	public HibernateHelper(Configuration configuration) {
 		if (!factories.containsKey(configuration)) {
 			ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
