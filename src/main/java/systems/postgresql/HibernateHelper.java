@@ -65,12 +65,6 @@ public class HibernateHelper implements AutoCloseable {
 		// }
 	}
 
-	// public static void main(String[] args) {
-	// try (Helper h = new Helper()) {
-	//
-	// }
-	// }
-
 	@Synchronized("session")
 	public <T> CriteriaQuery<T> createCriteriaQuery(Class<T> klass) {
 		return session.getCriteriaBuilder().createQuery(klass);
