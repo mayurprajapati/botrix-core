@@ -192,7 +192,17 @@ public class HibernateHelper implements AutoCloseable {
 	@Override
 	@Synchronized("session")
 	public void close() {
-		session.close();
+		try {
+			if (session != null && session.isOpen()) {
+				Transaction tx = session.getTransaction();
+				if (tx != null && tx.isActive()) {
+					tx.rollback();
+				}
+				session.close();
+			}
+		} catch (Exception e) {
+			LOG.warn("Error closing Hibernate session", e);
+		}
 	}
 
 	@Synchronized("session")
