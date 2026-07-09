@@ -39,6 +39,19 @@ public class CSVReader {
 	public static boolean overwrite = false;
 	private static Logger LOGGER = LoggerFactory.getLogger(CSVReader.class);
 
+	private static final char UTF8_BOM = '\uFEFF';
+
+	private static String normalizeHeader(String header) {
+		if (header == null) {
+			return null;
+		}
+		String h = header;
+		if (!h.isEmpty() && h.charAt(0) == UTF8_BOM) {
+			h = h.substring(1);
+		}
+		return h.trim();
+	}
+
 	public CSVReader() {
 
 	}
@@ -125,8 +138,19 @@ public class CSVReader {
 		List<String[]> allData = csvReader.readAll();
 		csvReader.close();
 		filereader.close();
+
+		if (CollectionUtils.isEmpty(allData)) {
+			return new ArrayList<>();
+		}
+
 		List<String> headers = new ArrayList<>();
 		Collections.addAll(headers, allData.get(0));
+		for (int i = 0; i < headers.size(); i++) {
+			headers.set(i, normalizeHeader(headers.get(i)));
+		}
+		// Ensure the first row (headers) doesn't get treated as data.
+		allData.remove(0);
+
 		List<Map> data = new ArrayList<>();
 		int index = -1;
 		for (String row[] : allData) {
