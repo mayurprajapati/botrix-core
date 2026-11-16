@@ -3,10 +3,12 @@ package rest;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Field;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -35,6 +37,8 @@ import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.config.HttpClientConfig;
 import io.restassured.config.RestAssuredConfig;
+import io.restassured.filter.Filter;
+import io.restassured.filter.FilterContext;
 import io.restassured.response.Response;
 import io.restassured.specification.FilterableRequestSpecification;
 import io.restassured.specification.RequestSpecification;
@@ -135,11 +139,54 @@ public class RestClient {
 		return responseBody;
 	}
 
+	/**
+	 * RestAssured's {@code FilterContextImpl} walks the filter chain with a single
+	 * shared iterator, so calling {@code context.next()} a second time finds the
+	 * chain exhausted and returns {@code null} without sending anything. To make
+	 * a retry actually re-send, snapshot the remaining filters once and rewind the
+	 * context's iterator before every attempt.
+	 */
+	private static final Field FILTERS_FIELD = filtersField();
+
+	private static Field filtersField() {
+		try {
+			Field f = Class.forName("io.restassured.internal.filter.FilterContextImpl").getDeclaredField("filters");
+			f.setAccessible(true);
+			return f;
+		} catch (Exception e) {
+			LOGGER.warn("Cannot access RestAssured filter chain, HTTP retries are disabled: {}", e.toString());
+			return null;
+		}
+	}
+
+	/** Drains what is left of the chain; null when it cannot be replayed. */
+	@SuppressWarnings("unchecked")
+	private static List<Filter> remainingFilters(FilterContext context) {
+		if (FILTERS_FIELD == null || !FILTERS_FIELD.getDeclaringClass().isInstance(context)) {
+			return null;
+		}
+		try {
+			List<Filter> remaining = new ArrayList<>();
+			((Iterator<Filter>) FILTERS_FIELD.get(context)).forEachRemaining(remaining::add);
+			return remaining;
+		} catch (Exception e) {
+			LOGGER.warn("Cannot snapshot RestAssured filter chain, not retrying: {}", e.toString());
+			return null;
+		}
+	}
+
 	private void retryFilter(RequestSpecBuilder specBuilder) {
 		specBuilder.addFilter((req, res, context) -> {
+			List<Filter> remaining = remainingFilters(context);
+			// Without a snapshot the chain can only be walked once, so send a single time.
+			int attempts = remaining == null ? 1 : builder.errorRetryCount;
+
 			Throwable lastError = null;
-			for (int i = 0; i < builder.errorRetryCount; i++) {
+			for (int i = 0; i < attempts; i++) {
 				try {
+					if (remaining != null) {
+						FILTERS_FIELD.set(context, remaining.iterator());
+					}
 					Response r = context.next(req, res);
 					if (r == null) {
 						throw new BishopRuntimeException("Not able to reach the server — response is null");
@@ -147,21 +194,22 @@ public class RestClient {
 					return r;
 				} catch (Throwable e) {
 					lastError = e;
-					if (i == builder.errorRetryCount - 1) {
+					if (i == attempts - 1) {
 						break;
 					}
 
 					// Exponential backoff: 2s, 4s, 8s, 16s, 32s...
 					long delayMs = 2000L * (1L << i);
-					LOGGER.warn("Request failed (attempt {}/{}), retrying in {}s: {}",
-							i + 1, builder.errorRetryCount, delayMs / 1000,
+					LOGGER.warn("Request failed (attempt {}/{}) for {} {}, retrying in {}s: {}",
+							i + 1, attempts, req.getMethod(), req.getURI(), delayMs / 1000,
 							e.getMessage());
 					Duration.ofMillis(delayMs).sleep();
 				}
 			}
 
 			throw new BishopRuntimeException(
-					"Request failed after " + builder.errorRetryCount + " attempts. Last error: "
+					"Request failed after " + attempts + " attempts (" + req.getMethod() + " " + req.getURI()
+							+ "). Last error: "
 							+ (lastError != null ? lastError.getMessage() : "unknown"),
 					lastError);
 		});
