@@ -21,7 +21,8 @@ git add pom.xml
 echo "✅ Updated pom.xml version to $new_version"
 
 # Deploy the project
-mvn deploy
+# Separate build dir: the IDE rebuilds target/ when this script edits pom.xml (see pom <build>)
+mvn -Dbotrix.build.dir=target-deploy clean deploy
 if [ $? -ne 0 ]; then
     echo "❌ Maven deploy failed!"
     exit 1

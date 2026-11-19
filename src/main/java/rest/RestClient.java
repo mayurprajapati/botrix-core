@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -181,11 +182,22 @@ public class RestClient {
 			// Without a snapshot the chain can only be walked once, so send a single time.
 			int attempts = remaining == null ? 1 : builder.errorRetryCount;
 
+			// RestAssured's sendRequest() moves a "?a=b" written in the URL into the
+			// spec's query params on every pass, so without a reset each retry would
+			// send a=b&a=b, then a=b&a=b&a=b, ...
+			Map<String, String> originalQueryParams = new LinkedHashMap<>(req.getQueryParams());
+
 			Throwable lastError = null;
 			for (int i = 0; i < attempts; i++) {
 				try {
 					if (remaining != null) {
 						FILTERS_FIELD.set(context, remaining.iterator());
+					}
+					if (i > 0) {
+						new ArrayList<>(req.getQueryParams().keySet()).forEach(req::removeQueryParam);
+						if (!originalQueryParams.isEmpty()) {
+							req.queryParams(originalQueryParams);
+						}
 					}
 					Response r = context.next(req, res);
 					if (r == null) {
